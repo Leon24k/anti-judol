@@ -5,6 +5,7 @@ GlobalRegistrator.register({
   // Tests must never touch the network (fixtures contain real-looking judol URLs).
   settings: {
     disableIframePageLoading: true,
+    handleDisabledFileLoadingAsSuccess: true,
     disableJavaScriptFileLoading: true,
     disableCSSFileLoading: true,
     disableComputedStyleRendering: true,

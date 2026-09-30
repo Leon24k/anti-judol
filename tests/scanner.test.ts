@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import { afterAll, beforeEach, describe, expect, test } from "bun:test";
 import { Scanner } from "../src/content/scanner";
 import type { ClassifyItem, ClassifyResult, ContentConfig } from "../src/shared/messages";
 import { pageKeyOf, resolveActive, siteKeyOf } from "../src/shared/page";
@@ -64,6 +64,9 @@ describe("scanner", () => {
   let log: ClassifyItem[][];
   let scanner: Scanner;
   let host: HTMLElement;
+
+  // Leftover observers would mark DOM created by other test files.
+  afterAll(() => scanner?.stop());
 
   beforeEach(() => {
     scanner?.stop();
