@@ -136,3 +136,7 @@ bun run e2e     # end-to-end test in a real Chrome
 ```
 
 Websites change their page structure from time to time. If the extension suddenly stops working on a site, the selectors for that platform in `src/content/adapters.ts` usually need an update.
+
+## License
+
+[MIT](LICENSE). The gambling-domain list is downloaded at runtime from [HaGeZi's DNS blocklists](https://github.com/hagezi/dns-blocklists) (GPL-3.0) and is not part of this repository.

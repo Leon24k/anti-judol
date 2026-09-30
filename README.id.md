@@ -134,3 +134,7 @@ bun install
 bun run check   # typecheck + unit test + build
 bun run e2e     # tes end-to-end di Chrome asli
 ```
+
+## Lisensi
+
+[MIT](LICENSE). Daftar domain judi diunduh saat ekstensi berjalan dari [HaGeZi DNS blocklists](https://github.com/hagezi/dns-blocklists) (GPL-3.0) dan bukan bagian dari repositori ini.
