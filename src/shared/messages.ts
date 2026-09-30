@@ -1,11 +1,13 @@
 /** Typed message contracts between content script, popup/options, and the service worker. */
 import type { ActiveReason } from "./page";
+import type { PlatformId } from "./platforms";
 import type { Action, Sensitivity, Settings, Surface } from "./settings";
 import type { Verdict, VerdictSource } from "./verdict";
 
 export interface ClassifyItem {
   key: string;
   surface: Surface;
+  platform?: PlatformId | undefined;
   text: string;
   author?: string | undefined;
   localScore: number;
@@ -36,6 +38,8 @@ export interface ContentConfig {
   blurSuspicious: boolean;
   preblurLocal: boolean;
   surfaces: Record<Surface, boolean>;
+  /** Which platforms the user enabled (content script checks its own). */
+  platforms: Record<PlatformId, boolean>;
   jevAvailable: boolean;
   allowKeys: string[];
 }
@@ -70,7 +74,7 @@ export interface BgMessages {
   "rules:page": { req: { pageKey: string; on: boolean | null }; res: { ok: true } };
   "rules:clearAllow": { req: Record<string, never>; res: { ok: true } };
   "rules:get": { req: { pageKey: string; siteKey: string }; res: { site: boolean | null; page: boolean | null; allowCount: number; global: boolean } };
-  "settings:get": { req: Record<string, never>; res: PublicView & { status: JevStatus } };
+  "settings:get": { req: Record<string, never>; res: PublicView & { status: JevStatus; grantedPlatforms: PlatformId[] } };
   "settings:update": { req: { patch: Partial<Settings> }; res: PublicView };
   "cache:clear": { req: Record<string, never>; res: { ok: true } };
   "jev:test": { req: Record<string, never>; res: { ok: boolean; latencyMs: number; detail: string } };

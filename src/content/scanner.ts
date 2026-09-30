@@ -16,7 +16,7 @@ import type { ClassifyItem, ClassifyResult, ContentConfig, PageStats } from "../
 import { normalize } from "../shared/normalize";
 import type { Surface } from "../shared/settings";
 import { Verdict } from "../shared/verdict";
-import { adapterFor, ALL_CONTAINERS, extract } from "./adapters";
+import { adapterFor, adaptersForHost, extract, type AdapterSet } from "./adapters";
 import { applyMark, clearAll, clearMark, installInteractions, isOurs, type MarkState } from "./ui";
 
 const SLICE_BUDGET_MS = 8;
@@ -39,6 +39,8 @@ export interface ScannerDeps {
   classify(items: ClassifyItem[]): Promise<ClassifyResult[]>;
   onAllow(key: string): void;
   now?(): number;
+  /** Adapter set for this document; defaults to one derived from location.hostname. */
+  adapters?: AdapterSet | null;
 }
 
 export class Scanner {
@@ -57,6 +59,7 @@ export class Scanner {
   private sweepTimer: ReturnType<typeof setInterval> | undefined;
   private inflight = 0;
   private readonly now: () => number;
+  private readonly set: AdapterSet | null;
 
   private seen = new Set<string>();
   private judol = new Set<string>();
@@ -68,6 +71,11 @@ export class Scanner {
     private readonly d: ScannerDeps,
   ) {
     this.now = d.now ?? (() => performance.now());
+    this.set = d.adapters !== undefined ? d.adapters : adaptersForHost(doc.location?.hostname ?? "");
+  }
+
+  get platform(): string | null {
+    return this.set?.platform ?? null;
   }
 
   get stats(): PageStats {
@@ -87,7 +95,7 @@ export class Scanner {
     const prev = this.cfg;
     this.cfg = cfg;
     this.allow = new Set(cfg.allowKeys);
-    if (!cfg.active) return this.stop();
+    if (!cfg.active || !this.set || !cfg.platforms[this.set.platform]) return this.stop();
     if (prev && prev.sensitivity !== cfg.sensitivity) this.verdicts.clear();
     this.tracked = new WeakMap();
     this.waiting.clear();
@@ -156,15 +164,16 @@ export class Scanner {
   }
 
   private flush(): void {
-    if (!this.cfg?.active || this.dirty.size === 0) return;
+    if (!this.cfg?.active || !this.set || this.dirty.size === 0) return;
+    const containers = this.set.containers;
     const t0 = this.now();
     const found = new Set<Element>();
     for (const n of this.dirty) {
       const el = n.nodeType === 1 ? (n as Element) : n.parentElement;
       if (!el) continue;
-      const c = el.closest(ALL_CONTAINERS);
+      const c = el.closest(containers);
       if (c) found.add(c);
-      if (n.nodeType === 1) for (const x of el.querySelectorAll(ALL_CONTAINERS)) found.add(x);
+      if (n.nodeType === 1) for (const x of el.querySelectorAll(containers)) found.add(x);
     }
     this.dirty.clear();
 
@@ -194,7 +203,7 @@ export class Scanner {
 
   private process(el: Element): void {
     const cfg = this.cfg;
-    const a = adapterFor(el);
+    const a = this.set ? adapterFor(el, this.set) : undefined;
     if (!cfg || !a) return;
     const prev = this.tracked.get(el);
     if (!cfg.surfaces[a.surface]) {
@@ -266,6 +275,7 @@ export class Scanner {
       existing.priority = Math.max(existing.priority, priority);
     } else {
       const item: ClassifyItem = { key: tr.key, surface: tr.surface, text: tr.text, localScore: tr.score, priority };
+      if (this.set) item.platform = this.set.platform;
       if (tr.author) item.author = tr.author;
       this.outbox.set(tr.key, item);
     }

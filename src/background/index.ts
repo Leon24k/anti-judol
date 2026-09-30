@@ -19,6 +19,7 @@ import {
   type Settings,
 } from "../shared/settings";
 import { classifyWithFallback, endpointsFor } from "./jev";
+import { grantedPlatforms, syncPlatformScripts } from "./platforms";
 import { DailyQuota } from "./quota";
 import { Scheduler } from "./scheduler";
 
@@ -63,7 +64,12 @@ const ready = (async () => {
   const cached = session[K_CACHE];
   if (Array.isArray(cached)) scheduler.cache.load(cached);
   status = jevConfigured(settings) ? status : { state: "disabled" };
+  await syncPlatformScripts(settings.platforms).catch(() => {});
 })();
+
+// User granted/revoked a site in chrome://extensions → keep registrations consistent.
+chrome.permissions.onAdded.addListener(() => void ready.then(() => syncPlatformScripts(settings.platforms)).catch(() => {}));
+chrome.permissions.onRemoved.addListener(() => void ready.then(() => syncPlatformScripts(settings.platforms)).catch(() => {}));
 
 let cacheTimer: ReturnType<typeof setTimeout> | undefined;
 function persistCacheSoon(): void {
@@ -123,6 +129,7 @@ function contentConfig(pageKey: string, siteKey: string): ContentConfig {
     blurSuspicious: settings.blurSuspicious,
     preblurLocal: settings.preblurLocal,
     surfaces: settings.surfaces,
+    platforms: settings.platforms,
     jevAvailable: jevConfigured(settings) && status.state !== "unauthorized",
     allowKeys: Object.keys(rules.allow),
   };
@@ -177,12 +184,18 @@ const handlers: Handlers = {
     };
   },
   async "settings:get"() {
-    return { ...publicView(), status };
+    return { ...publicView(), status, grantedPlatforms: [...(await grantedPlatforms())] };
   },
   async "settings:update"({ patch }) {
     const prev = settings;
-    settings = sanitizeSettings({ ...settings, ...patch, surfaces: { ...settings.surfaces, ...patch.surfaces } });
+    settings = sanitizeSettings({
+      ...settings,
+      ...patch,
+      surfaces: { ...settings.surfaces, ...patch.surfaces },
+      platforms: { ...settings.platforms, ...patch.platforms },
+    });
     await chrome.storage.local.set({ [K_SETTINGS]: settings });
+    await syncPlatformScripts(settings.platforms).catch(() => {});
     if (
       prev.apiKey !== settings.apiKey ||
       prev.openrouterKey !== settings.openrouterKey ||

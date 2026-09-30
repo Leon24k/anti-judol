@@ -8,7 +8,7 @@
  * interception, so the content script injects exactly as in production, but results are deterministic.
  * A hard watchdog kills Chrome if anything hangs.
  */
-import { mkdtemp, rm } from "node:fs/promises";
+import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import puppeteer, { type Browser, type Page } from "puppeteer-core";
@@ -19,6 +19,10 @@ const CHROME =
 const TS_KEY = process.env.TS_KEY ?? "";
 const HEADLESS = process.env.HEADFUL ? false : true;
 const DIST = resolve("dist");
+// Chrome's permission prompt can't be clicked by automation, so the E2E build pre-grants the
+// optional platform hosts. Everything else (settings → dynamic registration → injection) is real.
+const E2E_DIST = join(tmpdir(), `aj-e2e-dist-${process.pid}`);
+const X_URL = "https://x.com/someone/status/1";
 const PAGE = "https://www.youtube.com/watch?v=e2etest";
 
 const JUDOL = [
@@ -67,10 +71,16 @@ const watchdog = setTimeout(async () => {
   process.exit(2);
 }, 120_000);
 
+const X_FIXTURE = `<!doctype html><html><body>
+<article data-testid="tweet"><div data-testid="User-Name"><span>SLOT88</span></div><div data-testid="tweetText">s l o t g4c0r maxwin depo 10rb cek bio</div></article>
+<article data-testid="tweet"><div data-testid="User-Name"><span>Budi</span></div><div data-testid="tweetText">Pagi semua, macet parah di Sudirman</div></article>
+</body></html>`;
+
 async function serve(page: Page): Promise<void> {
   await page.setRequestInterception(true);
   page.on("request", (r) => {
     const u = r.url();
+    if (u.startsWith("https://x.com/")) return void r.respond({ status: 200, contentType: "text/html", body: X_FIXTURE });
     if (u.startsWith("https://www.youtube.com/watch")) return void r.respond({ status: 200, contentType: "text/html", body: FIXTURE });
     if (u.startsWith("https://www.youtube.com/live_chat")) return void r.respond({ status: 200, contentType: "text/html", body: CHAT });
     return void r.abort();
@@ -84,11 +94,16 @@ async function states(page: Page): Promise<Record<string, string | null>> {
 }
 
 try {
+  await cp(DIST, E2E_DIST, { recursive: true });
+  const man = JSON.parse(await readFile(join(E2E_DIST, "manifest.json"), "utf8"));
+  man.host_permissions = [...man.host_permissions, ...man.optional_host_permissions];
+  await writeFile(join(E2E_DIST, "manifest.json"), JSON.stringify(man));
+
   browser = await puppeteer.launch({
     executablePath: CHROME,
     headless: HEADLESS,
     pipe: true,
-    enableExtensions: [DIST],
+    enableExtensions: [E2E_DIST],
     userDataDir: profile,
     args: ["--no-first-run", "--no-default-browser-check", "--disable-sync"],
   });
@@ -159,6 +174,26 @@ try {
   const exposed = await page.evaluate(() => typeof (globalThis as { chrome?: { runtime?: { sendMessage?: unknown } } }).chrome?.runtime?.sendMessage);
   check("YouTube page scripts cannot message the extension", exposed === "undefined", exposed);
 
+  // ---------- opt-in platforms (X) ----------
+  const xStates = async () => {
+    const xp = await browser!.newPage();
+    await serve(xp);
+    await xp.goto(X_URL, { waitUntil: "domcontentloaded" });
+    await sleep(800);
+    const st = await xp.$$eval('article[data-testid="tweet"]', (els) => els.map((e) => e.getAttribute("data-aj-state")));
+    await xp.close();
+    return st;
+  };
+  check("X not scanned until the user enables it", (await xStates()).every((s) => s === null));
+  await send({ type: "settings:update", patch: { platforms: { x: true } } });
+  const regs = await worker!.evaluate(() => chrome.scripting.getRegisteredContentScripts().then((r) => r.map((x) => x.id)));
+  check("enabling X registers its content script", regs.includes("aj-platform-x"), JSON.stringify(regs));
+  const xs = await xStates();
+  check("X: judol tweet blurred, normal tweet untouched", xs[0] === "judol" && xs[1] === null, JSON.stringify(xs));
+  await send({ type: "settings:update", patch: { platforms: { x: false } } });
+  const regs2 = await worker!.evaluate(() => chrome.scripting.getRegisteredContentScripts().then((r) => r.map((x) => x.id)));
+  check("disabling X unregisters it", !regs2.includes("aj-platform-x"), JSON.stringify(regs2));
+
   if (TS_KEY) {
     await opts.type("#apiKey", TS_KEY);
     await opts.click('input[name="remoteConsent"]');
@@ -207,6 +242,7 @@ try {
   clearTimeout(watchdog);
   await browser?.close().catch(() => browser?.process()?.kill("SIGKILL"));
   await rm(profile, { recursive: true, force: true });
+  await rm(E2E_DIST, { recursive: true, force: true });
 }
 
 console.log(`\n${results.length - failed} ok, ${failed} failed`);

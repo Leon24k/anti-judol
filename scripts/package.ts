@@ -17,8 +17,15 @@ if (manifest.version !== pkg.version) errors.push(`manifest version ${manifest.v
 for (const p of Object.values<string>(manifest.icons ?? {})) if (!existsSync(join("dist", p))) errors.push(`missing icon ${p}`);
 if (!manifest.icons?.["128"]) errors.push("128px icon required by the store");
 if ((manifest.description ?? "").length > 132) errors.push("description > 132 chars");
-if (manifest.optional_host_permissions || manifest.host_permissions?.some((h: string) => h.includes("*://*/") || h === "<all_urls>"))
-  errors.push("broad host permissions");
+const broad = (h: string) => h === "<all_urls>" || /^(\*|https?):\/\/\*\//.test(h);
+if (manifest.host_permissions?.some(broad)) errors.push("broad required host permissions");
+{
+  // Optional permissions must mirror src/shared/platforms.ts exactly (nothing extra slips in).
+  const { OPTIONAL_PLATFORMS } = await import("../src/shared/platforms");
+  const want = OPTIONAL_PLATFORMS.flatMap((p) => p.matches).sort();
+  const got = [...(manifest.optional_host_permissions ?? [])].filter((h: string) => !broad(h)).sort();
+  if (JSON.stringify(want) !== JSON.stringify(got)) errors.push(`optional_host_permissions ≠ platforms.ts\n    want ${want}\n    got  ${got}`);
+}
 
 // No secrets or dev leftovers in shipped code.
 async function* files(dir: string): AsyncGenerator<string> {

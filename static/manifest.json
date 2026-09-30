@@ -12,12 +12,21 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "scripting"],
   "host_permissions": [
     "https://www.youtube.com/*",
     "https://m.youtube.com/*",
     "https://api.typesafe.ai/*",
     "https://openrouter.ai/*"
+  ],
+  "optional_host_permissions": [
+    "https://x.com/*", "https://twitter.com/*", "https://mobile.x.com/*",
+    "https://www.reddit.com/*", "https://old.reddit.com/*", "https://sh.reddit.com/*",
+    "https://www.twitch.tv/*",
+    "https://disqus.com/embed/*",
+    "https://www.facebook.com/*", "https://m.facebook.com/*", "https://web.facebook.com/*",
+    "https://www.instagram.com/*",
+    "https://www.tiktok.com/*"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"

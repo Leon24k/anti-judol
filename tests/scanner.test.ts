@@ -11,6 +11,7 @@ const cfg = (over: Partial<ContentConfig> = {}): ContentConfig => ({
   blurSuspicious: true,
   preblurLocal: true,
   surfaces: { comment: true, live_chat: true, video_title: true },
+  platforms: { youtube: true, x: false, reddit: false, facebook: false, instagram: false, tiktok: false, twitch: false, disqus: false },
   jevAvailable: true,
   allowKeys: [],
   ...over,

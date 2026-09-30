@@ -3,6 +3,7 @@
  * API keys are write-only: the worker never returns them, only a masked hint ("…3f9a").
  */
 import { sendBg, type PublicView } from "../shared/messages";
+import { PLATFORMS, platformById, type PlatformId } from "../shared/platforms";
 import type { Settings, Surface } from "../shared/settings";
 
 const form = document.getElementById("form") as HTMLFormElement;
@@ -13,8 +14,63 @@ function field(name: string): HTMLInputElement | HTMLSelectElement {
 }
 const checkbox = (n: string) => field(n) as HTMLInputElement;
 
+let granted = new Set<PlatformId>();
+
+function renderPlatforms(v: PublicView): void {
+  const box = $("platforms");
+  box.replaceChildren();
+  for (const p of PLATFORMS) {
+    const label = document.createElement("label");
+    label.className = "row";
+    const name = document.createElement("span");
+    name.textContent = p.name;
+    if (p.beta) {
+      const b = document.createElement("span");
+      b.className = "pill";
+      b.textContent = "beta";
+      name.append(" ", b);
+    }
+    if (!p.builtin && v.settings.platforms[p.id] && !granted.has(p.id)) {
+      const w = document.createElement("span");
+      w.className = "muted small";
+      w.textContent = " (izin belum diberikan)";
+      name.append(w);
+    }
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.dataset.platform = p.id;
+    cb.checked = v.settings.platforms[p.id] && (p.builtin || granted.has(p.id));
+    label.append(name, cb);
+    box.append(label);
+  }
+}
+
+// Must run synchronously inside the click → permissions.request needs the user gesture.
+$("platforms").addEventListener("change", (e) => {
+  const cb = e.target as HTMLInputElement;
+  const id = cb.dataset.platform as PlatformId | undefined;
+  if (!id) return;
+  const p = platformById(id);
+  const on = cb.checked;
+  const ask = on && !p.builtin ? chrome.permissions.request({ origins: p.matches }) : Promise.resolve(true);
+  void ask.then(async (ok) => {
+    if (!ok) {
+      cb.checked = false;
+      flash("saved", `Izin ${p.name} ditolak`);
+      return;
+    }
+    if (!on && !p.builtin) await chrome.permissions.remove({ origins: p.matches }).catch(() => false);
+    const r = await sendBg("settings:update", { patch: { platforms: { [id]: on } as Record<PlatformId, boolean> } });
+    const g = await sendBg("settings:get", {});
+    granted = new Set(g.grantedPlatforms);
+    fill(r);
+    flash("saved", on ? `${p.name} aktif ✓ (muat ulang tab ${p.name} yang terbuka)` : `${p.name} dimatikan`);
+  });
+});
+
 function fill(v: PublicView): void {
   const s = v.settings;
+  renderPlatforms(v);
   for (const k of ["enabled", "blurSuspicious", "preblurLocal", "remoteConsent"] as const) checkbox(k).checked = s[k];
   for (const k of ["action", "sensitivity", "model"] as const) field(k).value = s[k];
   field("dailyLimit").value = String(s.dailyLimit);
@@ -95,4 +151,7 @@ $("clearCache").addEventListener("click", async () => {
   flash("dataResult", "Cache dihapus");
 });
 
-void sendBg("settings:get", {}).then(fill);
+void sendBg("settings:get", {}).then((v) => {
+  granted = new Set(v.grantedPlatforms);
+  fill(v);
+});

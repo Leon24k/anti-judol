@@ -9,15 +9,16 @@
  */
 import type { ClassifyItem } from "../shared/messages";
 import type { Settings, Surface } from "../shared/settings";
+import { platformById } from "../shared/platforms";
 import { Verdict, VERDICTS, type VerdictProbs } from "../shared/verdict";
 
 export const TYPESAFE_BASE = "https://api.typesafe.ai";
 export const DEFAULT_MODEL = "jev-latest";
 
 const SURFACE_LABEL: Record<Surface, string> = {
-  comment: "a YouTube comment",
-  live_chat: "a YouTube live chat message",
-  video_title: "a YouTube video title",
+  comment: "a comment or post",
+  live_chat: "a live chat message",
+  video_title: "a video or post title",
 };
 
 /** Rubric. Written literally (Jev reads criteria at face value) with explicit boundary cases. */
@@ -89,7 +90,7 @@ export async function classifyWithFallback(
   throw last;
 }
 
-export type JevItem = Pick<ClassifyItem, "key" | "surface" | "text" | "author">;
+export type JevItem = Pick<ClassifyItem, "key" | "surface" | "text" | "author" | "platform">;
 
 export function buildRequest(items: readonly JevItem[], model: string) {
   const questions: Record<string, unknown> = {};
@@ -101,7 +102,8 @@ export function buildRequest(items: readonly JevItem[], model: string) {
       type: "choice",
       instructions: {
         ...data,
-        question: INSTRUCTION.replace("{surface}", SURFACE_LABEL[it.surface]) + (it.author ? " `author` is the display name of the sender." : ""),
+        question:
+          INSTRUCTION.replace("{surface}", `${SURFACE_LABEL[it.surface]} on ${it.platform ? platformById(it.platform).name : "YouTube"}`) + (it.author ? " `author` is the display name of the sender." : ""),
       },
       criteria: CRITERIA,
     };
@@ -109,7 +111,7 @@ export function buildRequest(items: readonly JevItem[], model: string) {
   return {
     model,
     state: {
-      platform: "YouTube (mostly Indonesian-speaking audience)",
+      platform: "Social media / video sites (mostly Indonesian-speaking audience)",
       task: "Moderation filter that hides online-gambling (judol) promotion from viewers.",
     },
     questions,

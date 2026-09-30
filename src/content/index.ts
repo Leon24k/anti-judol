@@ -5,13 +5,16 @@ import { Scanner } from "./scanner";
 
 const isTop = window.top === window;
 
-/** Live chat runs in a same-origin iframe; it belongs to the parent video's page. */
+/**
+ * Embedded frames belong to the page that hosts them: YouTube live chat (same-origin parent)
+ * or a Disqus thread on a news site (cross-origin parent → use the referrer's origin+path).
+ */
 function pageUrl(): string {
   if (!isTop) {
     try {
       return window.parent.location.href;
     } catch {
-      /* cross-origin parent: fall through */
+      if (document.referrer) return document.referrer;
     }
   }
   return location.href;
