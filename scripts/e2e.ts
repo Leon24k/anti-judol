@@ -119,7 +119,8 @@ try {
     pipe: true,
     enableExtensions: [E2E_DIST],
     userDataDir: profile,
-    args: ["--no-first-run", "--no-default-browser-check", "--disable-sync"],
+    // CI runners (Linux containers) need --no-sandbox; local runs keep the sandbox.
+    args: ["--no-first-run", "--no-default-browser-check", "--disable-sync", ...(process.env.CI ? ["--no-sandbox"] : [])],
   });
   const sw = await browser.waitForTarget((t) => t.type() === "service_worker" && t.url().endsWith("/background.js"), { timeout: 15_000 });
   const extId = new URL(sw.url()).host;
