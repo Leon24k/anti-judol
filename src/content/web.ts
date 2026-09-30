@@ -5,6 +5,7 @@
  * the service worker (in-extension message, no network).
  */
 import { THRESHOLDS } from "../shared/decide";
+import { t } from "../shared/i18n";
 import { compileCustom, customVerdict, scoreText, type CustomWords } from "../shared/heuristics";
 import { normalize } from "../shared/normalize";
 import type { ContentConfig, PageStats } from "../shared/messages";
@@ -195,8 +196,8 @@ export class WebScanner {
     ph.className = "aj-web-ph";
     ph.setAttribute("role", "note");
     const label = this.doc.createElement("span");
-    label.textContent = "⚠ Iklan judi online disembunyikan";
-    ph.append(label, btn(this.doc, "web-reveal", "Lihat"), btn(this.doc, "web-report", "Laporkan"));
+    label.textContent = t("webHiddenAd");
+    ph.append(label, btn(this.doc, "web-reveal", t("btnReveal")), btn(this.doc, "web-report", t("btnReport")));
     unit.before(ph);
   }
 
@@ -214,13 +215,13 @@ export class WebScanner {
     const o = this.doc.createElement("div");
     o.className = "aj-page-warn";
     o.setAttribute("role", "alertdialog");
-    o.setAttribute("aria-label", "Peringatan halaman judi online");
+    o.setAttribute("aria-label", t("pageWarnAria"));
     const box = this.doc.createElement("div");
     const h = this.doc.createElement("strong");
-    h.textContent = "Halaman ini berisi promosi judi online";
+    h.textContent = t("pageWarnTitle");
     const p = this.doc.createElement("p");
-    p.textContent = `${location.hostname} kemungkinan diretas dan disusupi iklan judi. Jangan masukkan data pribadi atau melakukan transfer.`;
-    box.append(h, p, btn(this.doc, "page-back", "Kembali"), btn(this.doc, "web-report", "Laporkan ke aduankonten.id"), btn(this.doc, "page-stay", "Tetap lihat"));
+    p.textContent = t("pageWarnBody", location.hostname);
+    box.append(h, p, btn(this.doc, "page-back", t("pageBack")), btn(this.doc, "web-report", t("reportToAduan")), btn(this.doc, "page-stay", t("pageStay")));
     o.append(box);
     (this.doc.body ?? this.doc.documentElement).append(o);
   }
@@ -229,8 +230,8 @@ export class WebScanner {
 
   private installClicks(): () => void {
     const onClick = (e: MouseEvent) => {
-      const t = e.target as Element | null;
-      const b = t?.closest?.<HTMLElement>("[data-aj-act^='web-'], [data-aj-act^='page-']");
+      const target = e.target as Element | null;
+      const b = target?.closest?.<HTMLElement>("[data-aj-act^='web-'], [data-aj-act^='page-']");
       if (b && isOurs(b)) {
         e.preventDefault();
         e.stopPropagation();
@@ -240,7 +241,7 @@ export class WebScanner {
           if (unit?.hasAttribute("data-aj-web")) {
             const on = !unit.hasAttribute("data-aj-web-revealed");
             unit.toggleAttribute("data-aj-web-revealed", on);
-            b.textContent = on ? "Sembunyikan" : "Lihat";
+            b.textContent = on ? t("btnHide") : t("btnReveal");
           }
         } else if (act === "web-report") {
           const unit = b.closest(".aj-page-warn") ? null : b.parentElement?.nextElementSibling;
@@ -251,7 +252,7 @@ export class WebScanner {
         return;
       }
       // First click on a blurred judol link reveals instead of navigating.
-      const link = t?.closest?.("a[data-aj-web='link']:not([data-aj-web-revealed])");
+      const link = target?.closest?.("a[data-aj-web='link']:not([data-aj-web-revealed])");
       if (link && !this.revealed) {
         e.preventDefault();
         e.stopPropagation();

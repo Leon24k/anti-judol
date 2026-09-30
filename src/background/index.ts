@@ -4,6 +4,7 @@
  */
 import type { BgMessages, BgRequest, BgType, ContentConfig, JevStatus } from "../shared/messages";
 import { PRIVILEGED } from "../shared/messages";
+import { t } from "../shared/i18n";
 import { resolveActive } from "../shared/page";
 import {
   DEFAULT_RULES,
@@ -294,7 +295,7 @@ const handlers: Handlers = {
   },
   async "data:import"({ data }) {
     const r = fromPortable(data, settings);
-    if (!r) return { ok: false as const, reason: "File bukan ekspor Anti-Judol yang valid." };
+    if (!r) return { ok: false as const, reason: "invalid" };
     rules = { ...rules, sites: { ...rules.sites, ...r.rules.sites }, allow: mergeAllow(rules.allow, r.rules.allow) };
     await saveRules();
     await commitSettings(r.settings);
@@ -325,8 +326,8 @@ const handlers: Handlers = {
     return { ok: true };
   },
   async "jev:test"() {
-    if (!settings.remoteConsent) return { ok: false, latencyMs: 0, detail: "Centang persetujuan pengiriman teks dulu." };
-    if (!jevConfigured(settings)) return { ok: false, latencyMs: 0, detail: "API key belum diisi." };
+    if (!settings.remoteConsent) return { ok: false, latencyMs: 0, detail: t("testNeedConsent") };
+    if (!jevConfigured(settings)) return { ok: false, latencyMs: 0, detail: t("testNoKey") };
     const t0 = performance.now();
     try {
       const [p] = await classifyWithFallback(
@@ -336,7 +337,7 @@ const handlers: Handlers = {
       const latencyMs = Math.round(performance.now() - t0);
       status = { state: "ok", latencyMs };
       scheduler.reset();
-      return { ok: !!p, latencyMs, detail: p ? `P(JUDOL_PROMO)=${p.JUDOL_PROMO.toFixed(2)}` : "Respons tidak valid" };
+      return { ok: !!p, latencyMs, detail: p ? `P(JUDOL_PROMO)=${p.JUDOL_PROMO.toFixed(2)}` : t("testBadResponse") };
     } catch (e) {
       const latencyMs = Math.round(performance.now() - t0);
       return { ok: false, latencyMs, detail: (e as Error).message };

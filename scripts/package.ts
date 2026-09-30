@@ -16,7 +16,12 @@ const errors: string[] = [];
 if (manifest.version !== pkg.version) errors.push(`manifest version ${manifest.version} ≠ package.json ${pkg.version}`);
 for (const p of Object.values<string>(manifest.icons ?? {})) if (!existsSync(join("dist", p))) errors.push(`missing icon ${p}`);
 if (!manifest.icons?.["128"]) errors.push("128px icon required by the store");
-if ((manifest.description ?? "").length > 132) errors.push("description > 132 chars");
+for (const loc of ["en", "id"]) {
+  const msgs = JSON.parse(await readFile(`dist/_locales/${loc}/messages.json`, "utf8"));
+  if ((msgs.extDescription?.message ?? "").length > 132) errors.push(`${loc}: description > 132 chars`);
+  if ((msgs.extName?.message ?? "").length > 75) errors.push(`${loc}: name > 75 chars`);
+}
+if (manifest.default_locale !== "en" || !String(manifest.description).startsWith("__MSG_")) errors.push("manifest must use default_locale + __MSG_ strings");
 const broad = (h: string) => h === "<all_urls>" || /^(\*|https?):\/\/\*\//.test(h);
 if (manifest.host_permissions?.some(broad)) errors.push("broad required host permissions");
 {

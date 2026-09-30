@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Anti-Judol Shield",
-  "short_name": "Anti-Judol",
+  "name": "__MSG_extName__",
+  "default_locale": "en",
+  "short_name": "__MSG_extShortName__",
   "version": "1.1.0",
-  "description": "Sembunyikan spam judi online (judol) di YouTube & media sosial, dan blokir situs judi. Berjalan di perangkatmu.",
+  "description": "__MSG_extDescription__",
   "homepage_url": "https://github.com/Leon24k/anti-judol",
   "minimum_chrome_version": "116",
   "icons": {
@@ -47,7 +48,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Anti-Judol Shield",
+    "default_title": "__MSG_extName__",
     "default_icon": { "16": "icons/icon-16.png", "32": "icons/icon-32.png" }
   },
   "options_page": "options.html"

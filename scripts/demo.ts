@@ -21,6 +21,9 @@ const CHROME =
 const URL_ = "https://www.youtube.com/watch?v=demo";
 const VIEW = { width: 1200, height: 750 };
 const GIF_SCALE = 0.8; // 960×600 GIF
+// DEMO_LANG=id → Indonesian UI, written to docs/*.id.*; default English.
+const LANG = process.env.DEMO_LANG === "id" ? "id" : "en";
+const SUFFIX = LANG === "id" ? ".id" : "";
 
 const COMMENTS: Array<[author: string, text: string, when: string]> = [
   ["@rinaputri", "Makasih reviewnya kak, jadi yakin beli yang ini 🙏", "2 jam lalu"],
@@ -79,7 +82,11 @@ try {
     enableExtensions: [resolve("dist")],
     userDataDir: profile,
     defaultViewport: { ...VIEW, deviceScaleFactor: GIF_SCALE },
-    args: ["--no-first-run", "--no-default-browser-check", "--disable-sync", "--hide-scrollbars"],
+    args: [
+      "--no-first-run", "--no-default-browser-check", "--disable-sync", "--hide-scrollbars", `--lang=${LANG}`,
+      ...(process.platform === "darwin" ? ["-AppleLanguages", `(${LANG})`] : []),
+    ],
+    env: { ...process.env, LANGUAGE: LANG },
   });
   const swTarget = await browser.waitForTarget((t) => t.type() === "service_worker" && t.url().endsWith("/background.js"), { timeout: 15_000 });
   const sw = (await swTarget.worker())!;
@@ -151,8 +158,8 @@ try {
   await page.setViewport({ ...VIEW, deviceScaleFactor: 2 });
   await page.evaluate(() => window.scrollTo(0, 290)); // viewport change resets scroll; frame the comments
   await sleep(400);
-  await writeFile("docs/screenshot.png", await page.screenshot({ type: "png" }));
-  console.log("✓ docs/screenshot.png");
+  await writeFile(`docs/screenshot${SUFFIX}.png`, await page.screenshot({ type: "png" }));
+  console.log(`✓ docs/screenshot${SUFFIX}.png`);
 
   // Encode GIF.
   const gif = GIFEncoder();
@@ -163,8 +170,8 @@ try {
   }
   gif.finish();
   if (process.env.DUMP_FRAME) await writeFile(process.env.DUMP_FRAME, frames[Math.floor(frames.length * 0.72)]!.png);
-  await writeFile("docs/demo.gif", gif.bytes());
-  console.log(`✓ docs/demo.gif (${frames.length} frames, ${(gif.bytes().length / 1024 / 1024).toFixed(2)} MB)`);
+  await writeFile(`docs/demo${SUFFIX}.gif`, gif.bytes());
+  console.log(`✓ docs/demo${SUFFIX}.gif (${frames.length} frames, ${(gif.bytes().length / 1024 / 1024).toFixed(2)} MB)`);
 } finally {
   clearTimeout(watchdog);
   await browser?.close().catch(() => browser?.process()?.kill("SIGKILL"));

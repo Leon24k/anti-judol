@@ -378,6 +378,16 @@ try {
     results.push("- skipped live Jev checks (set TS_KEY to run)");
   }
 
+  // ---------- i18n: English (default browser language) ----------
+  {
+    const op = await browser.newPage();
+    await op.goto(`chrome-extension://${extId}/options.html`, { waitUntil: "load" });
+    await sleep(300);
+    const en = await op.evaluate(() => [document.documentElement.lang, document.querySelector("h2")?.textContent, document.getElementById("usage")?.textContent]);
+    check("UI in English for an English browser (with $1 substitution)", en[0] === "en" && en[1] === "Protection" && /^Today: \d+ comments sent$/.test(en[2] ?? ""), JSON.stringify(en));
+    await op.close();
+  }
+
   await page.screenshot({ path: join(tmpdir(), "aj-e2e.png") });
   check("no errors in extension pages / service worker", extErrors.length === 0, extErrors.join(" | "));
 } catch (e) {
@@ -387,6 +397,35 @@ try {
   await browser?.close().catch(() => browser?.process()?.kill("SIGKILL"));
   await rm(profile, { recursive: true, force: true });
   await rm(E2E_DIST, { recursive: true, force: true });
+}
+
+// ---------- i18n: Indonesian browser (separate short-lived Chrome) ----------
+{
+  const dir = await mkdtemp(join(tmpdir(), "aj-e2e-id-"));
+  let b: Browser | undefined;
+  try {
+    b = await puppeteer.launch({
+      executablePath: CHROME,
+      headless: HEADLESS,
+      pipe: true,
+      enableExtensions: [DIST],
+      userDataDir: dir,
+      // --lang works on Linux/Windows; macOS reads AppleLanguages.
+      args: ["--no-first-run", "--lang=id", ...(process.platform === "darwin" ? ["-AppleLanguages", "(id)"] : []), ...(process.env.CI ? ["--no-sandbox"] : [])],
+      env: { ...process.env, LANGUAGE: "id", LANG: "id_ID.UTF-8" },
+    });
+    const sw = await b.waitForTarget((t) => t.type() === "service_worker", { timeout: 15_000 });
+    const p = await b.newPage();
+    await p.goto(`chrome-extension://${new URL(sw.url()).host}/options.html`, { waitUntil: "load" });
+    await sleep(300);
+    const idr = await p.evaluate(() => [document.documentElement.lang, document.querySelector("h2")?.textContent, document.getElementById("usage")?.textContent]);
+    check("UI in Indonesian for an Indonesian browser", idr[0] === "id" && idr[1] === "Perlindungan" && /^Hari ini: \d+ komentar dikirim$/.test(idr[2] ?? ""), JSON.stringify(idr));
+  } catch (e) {
+    check("Indonesian UI run", false, String(e));
+  } finally {
+    await b?.close().catch(() => b?.process()?.kill("SIGKILL"));
+    await rm(dir, { recursive: true, force: true });
+  }
 }
 
 console.log(`\n${results.length - failed} ok, ${failed} failed`);

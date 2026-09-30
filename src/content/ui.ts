@@ -5,6 +5,7 @@
  */
 import type { Action } from "../shared/settings";
 import type { VerdictSource } from "../shared/verdict";
+import { t, type MsgKey } from "../shared/i18n";
 
 export type MarkState = "judol" | "suspicious" | "pending";
 
@@ -15,10 +16,10 @@ export interface Mark {
   source: VerdictSource;
 }
 
-const LABEL: Record<MarkState, string> = {
-  judol: "⚠ Promosi judol",
-  suspicious: "⚠ Spam mencurigakan",
-  pending: "Memeriksa…",
+const LABEL: Record<MarkState, MsgKey> = {
+  judol: "badgeJudol",
+  suspicious: "badgeSuspicious",
+  pending: "badgePending",
 };
 
 export const BADGE = "aj-badge";
@@ -43,9 +44,9 @@ function ensureBadge(el: Element): HTMLElement {
   label.className = "aj-label";
   badge.append(
     label,
-    button(doc, "reveal", "Lihat", "Tampilkan konten yang disembunyikan"),
-    button(doc, "allow", "Bukan judol", "Tandai bukan judol dan jangan sembunyikan lagi"),
-    button(doc, "report", "Laporkan", "Laporkan ke aduankonten.id (Komdigi)"),
+    button(doc, "reveal", t("btnReveal"), t("btnRevealAria")),
+    button(doc, "allow", t("btnAllow"), t("btnAllowAria")),
+    button(doc, "report", t("btnReport"), t("btnReportAria")),
   );
   el.append(badge);
   return badge;
@@ -62,9 +63,9 @@ export function applyMark(el: Element, m: Mark): void {
   el.setAttribute("data-aj-source", m.source);
   const badge = ensureBadge(el);
   const label = badge.querySelector(".aj-label");
-  if (label && label.textContent !== LABEL[m.state]) label.textContent = LABEL[m.state];
-  const title = m.source === "jev" || m.source === "cache" ? "Deteksi: Jev AI" : "Deteksi: filter lokal";
-  badge.title = `${title} · klik konten untuk melihat`;
+  const text = t(LABEL[m.state]);
+  if (label && label.textContent !== text) label.textContent = text;
+  badge.title = t("badgeHint", t(m.source === "jev" || m.source === "cache" ? "badgeByJev" : "badgeByLocal"));
 }
 
 export function clearMark(el: Element): void {
@@ -90,10 +91,10 @@ export interface InteractionHandlers {
 
 export function installInteractions(doc: Document, h: InteractionHandlers): () => void {
   const onClick = (e: MouseEvent) => {
-    const t = e.target as Element | null;
-    if (!t?.closest) return;
-    const btn = t.closest<HTMLElement>(`.${BADGE} button`);
-    const host = (btn ?? t).closest("[data-aj-state]");
+    const target = e.target as Element | null;
+    if (!target?.closest) return;
+    const btn = target.closest<HTMLElement>(`.${BADGE} button`);
+    const host = (btn ?? target).closest("[data-aj-state]");
     if (!host) return;
     if (btn) {
       e.preventDefault();
@@ -101,13 +102,13 @@ export function installInteractions(doc: Document, h: InteractionHandlers): () =
       if (btn.dataset.ajAct === "reveal") {
         const on = !host.hasAttribute("data-aj-revealed");
         host.toggleAttribute("data-aj-revealed", on);
-        btn.textContent = on ? "Sembunyikan" : "Lihat";
+        btn.textContent = on ? t("btnHide") : t("btnReveal");
       } else if (btn.dataset.ajAct === "allow") {
         const key = host.getAttribute("data-aj-key");
         if (key) h.onAllow(key, host);
       } else if (btn.dataset.ajAct === "report") {
         h.onReport(host);
-        btn.textContent = "Laporan disalin ✓";
+        btn.textContent = t("reportCopiedShort");
       }
       return;
     }
@@ -121,7 +122,7 @@ export function installInteractions(doc: Document, h: InteractionHandlers): () =
       e.stopPropagation();
       host.setAttribute("data-aj-revealed", "");
       const rb = host.querySelector<HTMLElement>(`.${BADGE} button[data-aj-act="reveal"]`);
-      if (rb) rb.textContent = "Sembunyikan";
+      if (rb) rb.textContent = t("btnHide");
     }
   };
   doc.addEventListener("click", onClick, true);

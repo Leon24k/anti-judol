@@ -10,13 +10,13 @@
 </p>
 
 <p align="center">
-  <img src="docs/demo.gif" alt="Demo: saat komentar video YouTube dimuat, spam judi langsung di-blur dengan badge merah. Satu komentar dibuka dengan tombol 'Lihat' lalu ditutup lagi, kemudian popup menampilkan 12 komentar dipindai, 3 judol, 1 spam" width="800" />
+  <img src="docs/demo.id.gif" alt="Demo: saat komentar video YouTube dimuat, spam judi langsung di-blur dengan badge merah. Satu komentar dibuka dengan tombol 'Lihat' lalu ditutup lagi, kemudian popup menampilkan 12 komentar dipindai, 3 judol, 1 spam" width="800" />
 </p>
 
 <details>
 <summary><b>Screenshot</b></summary>
 <p align="center">
-  <img src="docs/screenshot.png" alt="Komentar YouTube dengan spam judi di-blur dan diberi label 'Promosi judol' atau 'Spam mencurigakan', di samping popup ekstensi yang menampilkan statistik halaman dan tombol on/off" width="800" />
+  <img src="docs/screenshot.id.png" alt="Komentar YouTube dengan spam judi di-blur dan diberi label 'Promosi judol' atau 'Spam mencurigakan', di samping popup ekstensi yang menampilkan statistik halaman dan tombol on/off" width="800" />
 </p>
 </details>
 
@@ -123,7 +123,7 @@ Tidak diminta, kecuali kamu menyalakan opsi semua situs. YouTube jalan tanpa izi
 Di halaman peringatan, buka **Ini bukan situs judi?** lalu pilih **Bukan situs judi, jangan blokir lagi**. Bisa juga dengan menambahkannya di **Jangan pernah blokir** di Pengaturan. Tolong [laporkan juga](https://github.com/Leon24k/anti-judol/issues) supaya daftarnya bisa diperbaiki.
 
 **Bisa untuk bahasa lain?**
-Filter bawaan dirancang untuk spam judi berbahasa Indonesia dan Inggris. Mode AI memahami lebih banyak bahasa.
+Tampilan ekstensi tersedia dalam bahasa Indonesia dan Inggris, mengikuti bahasa browser. Filter bawaan dirancang untuk spam judi berbahasa Indonesia dan Inggris. Mode AI memahami lebih banyak bahasa.
 
 ## Kontribusi
 

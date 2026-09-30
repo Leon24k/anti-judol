@@ -1,0 +1,449 @@
+{
+  "extName": {
+    "message": "Anti-Judol Shield"
+  },
+  "extShortName": {
+    "message": "Anti-Judol"
+  },
+  "extDescription": {
+    "message": "Hides online-gambling (judol) spam on YouTube and social media, and blocks gambling sites. Runs on your device."
+  },
+  "langCode": {
+    "message": "en"
+  },
+  "popupUnsupported": {
+    "message": "This page isn't scanned. Anti-Judol works on YouTube, and on X, Reddit, Twitch, Disqus, Facebook, Instagram and TikTok when you enable them in Settings → Platforms."
+  },
+  "statScanned": {
+    "message": "Scanned"
+  },
+  "statJudol": {
+    "message": "Gambling"
+  },
+  "statSpam": {
+    "message": "Spam"
+  },
+  "popupPageOn": {
+    "message": "Active on this page"
+  },
+  "popupRevealAll": {
+    "message": "Show everything (temporary)"
+  },
+  "popupSiteOn": {
+    "message": "Active on $1"
+  },
+  "popupResetPage": {
+    "message": "Use default settings for this page"
+  },
+  "popupReportPage": {
+    "message": "Report this page to aduankonten.id"
+  },
+  "popupGlobal": {
+    "message": "Protection everywhere"
+  },
+  "popupSettings": {
+    "message": "Settings"
+  },
+  "popupAllowCount": {
+    "message": "$1 comments marked as not gambling"
+  },
+  "statusJevOk": {
+    "message": "Jev ✓ $1 ms"
+  },
+  "statusKeyRejected": {
+    "message": "API key rejected"
+  },
+  "statusJevError": {
+    "message": "Jev error → local"
+  },
+  "statusJevReady": {
+    "message": "Jev ready"
+  },
+  "statusLocal": {
+    "message": "Local mode"
+  },
+  "reasonPage": {
+    "message": "Custom rule for this page"
+  },
+  "reasonSite": {
+    "message": "Following the site rule"
+  },
+  "reasonGlobal": {
+    "message": "Following global settings"
+  },
+  "reportCopied": {
+    "message": "Report copied. Paste it into the aduankonten.id form, then submit."
+  },
+  "reportCopyFailed": {
+    "message": "Copy this page's address into the aduankonten.id form."
+  },
+  "optTitle": {
+    "message": "Anti-Judol Shield — Settings"
+  },
+  "optProtection": {
+    "message": "Protection"
+  },
+  "optEnabled": {
+    "message": "Protection everywhere"
+  },
+  "optAction": {
+    "message": "What to do with gambling content"
+  },
+  "optActionBlur": {
+    "message": "Blur + badge"
+  },
+  "optActionHide": {
+    "message": "Hide completely"
+  },
+  "optActionBadge": {
+    "message": "Badge only"
+  },
+  "optSensitivity": {
+    "message": "Sensitivity"
+  },
+  "optSensLow": {
+    "message": "Low (fewer false alarms)"
+  },
+  "optSensNormal": {
+    "message": "Normal"
+  },
+  "optSensHigh": {
+    "message": "High (more aggressive)"
+  },
+  "optBlurSuspicious": {
+    "message": "Also blur suspicious spam"
+  },
+  "optPreblur": {
+    "message": "Soft-blur while Jev is still checking"
+  },
+  "optPlatforms": {
+    "message": "Platforms"
+  },
+  "optPlatformsHelp": {
+    "message": "YouTube is on by default. Other platforms need access to that site: Chrome asks when you tick one, and you can revoke it any time."
+  },
+  "optPlatformDisqusNote": {
+    "message": "comment sections on news sites and blogs"
+  },
+  "optBeta": {
+    "message": "beta"
+  },
+  "optPlatformNoPerm": {
+    "message": "(permission not granted)"
+  },
+  "optPermDenied": {
+    "message": "Permission for $1 was denied"
+  },
+  "optPlatformOn": {
+    "message": "$1 enabled ✓ (reload any open $1 tabs)"
+  },
+  "optPlatformOff": {
+    "message": "$1 turned off"
+  },
+  "optAllSites": {
+    "message": "All sites (optional)"
+  },
+  "optWebScan": {
+    "message": "Hide gambling ads, banners and links on all sites"
+  },
+  "optWebScanHelp": {
+    "message": "Needs the \"read and change data on all sites\" permission. Checking is 100% local: page content is never sent anywhere, not even to the AI. It also shows a warning page (instead of an error screen) for gambling sites, and warns you about sites hacked to promote gambling."
+  },
+  "optAllSitesDenied": {
+    "message": "All-sites permission was denied"
+  },
+  "optWebScanOn": {
+    "message": "All-sites scanning on ✓"
+  },
+  "optWebScanOff": {
+    "message": "All-sites scanning off"
+  },
+  "optBlockTitle": {
+    "message": "Block gambling sites"
+  },
+  "optBlockSites": {
+    "message": "Block known online-gambling sites"
+  },
+  "optBlockRemote": {
+    "message": "Use the community list (HaGeZi Gambling, updated every 12 hours)"
+  },
+  "optBlockHelp": {
+    "message": "The list is downloaded from cdn.jsdelivr.net. Nothing about you is sent; blocking is done by the browser itself, so the extension never sees which sites you open."
+  },
+  "optBlockStatus": {
+    "message": "Active: $1 domains · community list updated $2"
+  },
+  "optBlockLastError": {
+    "message": " · last failure: $1"
+  },
+  "optNever": {
+    "message": "never"
+  },
+  "optDownloading": {
+    "message": "Downloading…"
+  },
+  "optBlockDomains": {
+    "message": "Extra domains to block (one per line)"
+  },
+  "optAllowDomains": {
+    "message": "Never block (one per line)"
+  },
+  "optAllowDomainsPh": {
+    "message": "my-site.com"
+  },
+  "optBlockRefresh": {
+    "message": "Update list now"
+  },
+  "optCustomTitle": {
+    "message": "Your own keywords"
+  },
+  "optCustomHelp": {
+    "message": "Matched after disguises are undone, so \"gacor88\" also catches \"g4c0r 88\" and \"𝐆𝐀𝐂𝐎𝐑𝟖𝟖\"."
+  },
+  "optCustomBlock": {
+    "message": "Always treat as gambling (one per line)"
+  },
+  "optCustomBlockPh": {
+    "message": "gambling site names you keep seeing"
+  },
+  "optCustomAllow": {
+    "message": "Never flag (one per line)"
+  },
+  "optCustomAllowPh": {
+    "message": "channel names or game terms you like"
+  },
+  "optSurfaces": {
+    "message": "What to scan"
+  },
+  "surfComment": {
+    "message": "Comments"
+  },
+  "surfChat": {
+    "message": "Live chat"
+  },
+  "surfTitle": {
+    "message": "Video titles"
+  },
+  "optAiTitle": {
+    "message": "AI classification (optional)"
+  },
+  "optAiHelp": {
+    "message": "Without this, the extension still works 100% on your device with the built-in filter and sends nothing."
+  },
+  "optAiNoticeTitle": {
+    "message": "Data sent when enabled:"
+  },
+  "optAiNotice": {
+    "message": "the text of visible comments, titles and chat messages on supported platforms, plus the sender's name, only to api.typesafe.ai (and openrouter.ai if you set a fallback key), solely to decide whether it is gambling promotion. No URLs, history, cookies or account data are sent."
+  },
+  "optPrivacyLink": {
+    "message": "Privacy policy"
+  },
+  "optConsent": {
+    "message": "I agree that visible text is sent to the classification API above"
+  },
+  "optApiKey": {
+    "message": "TypeSafe API key"
+  },
+  "optOrKey": {
+    "message": "OpenRouter API key — optional fallback, paid (about $$0.042 per 1M input tokens)"
+  },
+  "optRemove": {
+    "message": "Remove"
+  },
+  "optKeyHelp": {
+    "message": "Keys are stored only on this device, can't be read by web pages or content scripts, and are never shown again. Leave the field empty to keep the saved key."
+  },
+  "optKeySaved": {
+    "message": "(saved $1)"
+  },
+  "optKeyEmpty": {
+    "message": "(not set)"
+  },
+  "optModel": {
+    "message": "Model (optional, default jev-latest)"
+  },
+  "optDailyLimit": {
+    "message": "Max comments sent per day (0 = unlimited)"
+  },
+  "optUsage": {
+    "message": "Today: $1 comments sent"
+  },
+  "optSave": {
+    "message": "Save"
+  },
+  "optTest": {
+    "message": "Test Jev connection"
+  },
+  "optSaved": {
+    "message": "Saved ✓"
+  },
+  "optKeyRemoved": {
+    "message": "Key removed"
+  },
+  "optTesting": {
+    "message": "Testing…"
+  },
+  "optData": {
+    "message": "Data"
+  },
+  "optSync": {
+    "message": "Sync settings and whitelist through your Chrome account"
+  },
+  "optSyncHelp": {
+    "message": "Uses your own Chrome Sync. API keys are never synced or exported."
+  },
+  "optExport": {
+    "message": "Export settings"
+  },
+  "optImport": {
+    "message": "Import settings"
+  },
+  "optClearAllow": {
+    "message": "Clear comment whitelist"
+  },
+  "optClearCache": {
+    "message": "Clear classification cache"
+  },
+  "optExported": {
+    "message": "Exported (without API keys)"
+  },
+  "optFileTooBig": {
+    "message": "File too large"
+  },
+  "optFileNotJson": {
+    "message": "Not a valid JSON file"
+  },
+  "optImportInvalid": {
+    "message": "Not a valid Anti-Judol export file"
+  },
+  "optImported": {
+    "message": "Settings imported ✓ (API keys stay on this device)"
+  },
+  "optWhitelistCleared": {
+    "message": "Whitelist cleared"
+  },
+  "optCacheCleared": {
+    "message": "Cache cleared"
+  },
+  "testNeedConsent": {
+    "message": "Tick the consent box first."
+  },
+  "testNoKey": {
+    "message": "No API key set."
+  },
+  "testBadResponse": {
+    "message": "Invalid response"
+  },
+  "badgeJudol": {
+    "message": "⚠ Gambling promo"
+  },
+  "badgeSuspicious": {
+    "message": "⚠ Suspicious spam"
+  },
+  "badgePending": {
+    "message": "Checking…"
+  },
+  "badgeByJev": {
+    "message": "Detected by Jev AI"
+  },
+  "badgeByLocal": {
+    "message": "Detected by the built-in filter"
+  },
+  "badgeHint": {
+    "message": "$1 · click the content to view it"
+  },
+  "btnReveal": {
+    "message": "Show"
+  },
+  "btnRevealAria": {
+    "message": "Show the hidden content"
+  },
+  "btnHide": {
+    "message": "Hide"
+  },
+  "btnAllow": {
+    "message": "Not gambling"
+  },
+  "btnAllowAria": {
+    "message": "Mark as not gambling and never hide it again"
+  },
+  "btnReport": {
+    "message": "Report"
+  },
+  "btnReportAria": {
+    "message": "Report to aduankonten.id (Komdigi)"
+  },
+  "reportCopiedShort": {
+    "message": "Report copied ✓"
+  },
+  "webHiddenAd": {
+    "message": "⚠ Online-gambling ad hidden"
+  },
+  "pageWarnAria": {
+    "message": "Online-gambling page warning"
+  },
+  "pageWarnTitle": {
+    "message": "This page contains online-gambling promotion"
+  },
+  "pageWarnBody": {
+    "message": "$1 has probably been hacked and filled with gambling ads. Don't enter personal data or make any transfers."
+  },
+  "pageBack": {
+    "message": "Go back"
+  },
+  "reportToAduan": {
+    "message": "Report to aduankonten.id"
+  },
+  "pageStay": {
+    "message": "Keep viewing"
+  },
+  "blockedTitle": {
+    "message": "Online-gambling site blocked — Anti-Judol Shield"
+  },
+  "blockedTitleDomain": {
+    "message": "$1 blocked — Anti-Judol Shield"
+  },
+  "blockedHeading": {
+    "message": "This site was blocked because it looks like online gambling"
+  },
+  "blockedDomainAria": {
+    "message": "Site address"
+  },
+  "blockedUnknown": {
+    "message": "unknown site"
+  },
+  "blockedExplain": {
+    "message": "Anti-Judol Shield stopped this page before it loaded. Nothing from this site was opened."
+  },
+  "blockedBack": {
+    "message": "Back to safety"
+  },
+  "blockedReportCopied": {
+    "message": "Report copied. Paste it (Ctrl/⌘+V) into the aduankonten.id form, then submit."
+  },
+  "blockedReportFallback": {
+    "message": "Copy this link into the form: $1"
+  },
+  "blockedHelp": {
+    "message": "Need help to stop gambling? In Indonesia, call the Ministry of Health mental-health line 119 ext. 8, or talk to someone close to you. You are not alone."
+  },
+  "blockedNotGambling": {
+    "message": "Not a gambling site?"
+  },
+  "blockedOnce": {
+    "message": "Open once"
+  },
+  "blockedAllow": {
+    "message": "Not a gambling site, don't block it again"
+  },
+  "blockedConfirmOnce": {
+    "message": "Open $1 once in this tab? This site is on the gambling-site list."
+  },
+  "blockedConfirmAllow": {
+    "message": "Stop blocking $1? You can undo this in Settings."
+  },
+  "blockedSavedOpening": {
+    "message": "Saved. Opening the site…"
+  }
+}

@@ -14,7 +14,7 @@
     "icons": "bun run scripts/icons.ts",
     "package": "bun run check && bun run scripts/package.ts",
     "e2e": "bun run build && bun run scripts/e2e.ts",
-    "demo": "bun run build && bun run scripts/demo.ts"
+    "demo": "bun run build && bun run scripts/demo.ts && DEMO_LANG=id bun run scripts/demo.ts"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "20.14.5",

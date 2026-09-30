@@ -3,6 +3,9 @@
  * API keys are write-only: the worker never returns them, only a masked hint ("…3f9a").
  */
 import { sendBg, type PublicView } from "../shared/messages";
+import { applyI18n, lang, t } from "../shared/i18n";
+
+applyI18n();
 import { PLATFORMS, platformById, type PlatformId } from "../shared/platforms";
 import type { Settings, Surface } from "../shared/settings";
 
@@ -26,14 +29,14 @@ $("webScan").addEventListener("change", (e) => {
   void ask.then(async (ok) => {
     if (!ok) {
       cb.checked = false;
-      flash("saved", "Izin semua situs ditolak");
+      flash("saved", t("optAllSitesDenied"));
       return;
     }
     if (!on) await chrome.permissions.remove(ALL).catch(() => false);
     fill(await sendBg("settings:update", { patch: { webScan: on } }));
     allSites = (await sendBg("settings:get", {})).allSites;
     ($("webScan") as HTMLInputElement).checked = on && allSites;
-    flash("saved", on ? "Pemindaian semua situs aktif ✓" : "Pemindaian semua situs dimatikan");
+    flash("saved", on ? t("optWebScanOn") : t("optWebScanOff"));
   });
 });
 
@@ -44,17 +47,17 @@ function renderPlatforms(v: PublicView): void {
     const label = document.createElement("label");
     label.className = "row";
     const name = document.createElement("span");
-    name.textContent = p.name;
+    name.textContent = p.id === "disqus" ? `${p.name} (${t("optPlatformDisqusNote")})` : p.name;
     if (p.beta) {
       const b = document.createElement("span");
       b.className = "pill";
-      b.textContent = "beta";
+      b.textContent = t("optBeta");
       name.append(" ", b);
     }
     if (!p.builtin && v.settings.platforms[p.id] && !granted.has(p.id)) {
       const w = document.createElement("span");
       w.className = "muted small";
-      w.textContent = " (izin belum diberikan)";
+      w.textContent = ` ${t("optPlatformNoPerm")}`;
       name.append(w);
     }
     const cb = document.createElement("input");
@@ -77,7 +80,7 @@ $("platforms").addEventListener("change", (e) => {
   void ask.then(async (ok) => {
     if (!ok) {
       cb.checked = false;
-      flash("saved", `Izin ${p.name} ditolak`);
+      flash("saved", t("optPermDenied", p.name));
       return;
     }
     if (!on && !p.builtin) await chrome.permissions.remove({ origins: p.matches }).catch(() => false);
@@ -85,7 +88,7 @@ $("platforms").addEventListener("change", (e) => {
     const g = await sendBg("settings:get", {});
     granted = new Set(g.grantedPlatforms);
     fill(r);
-    flash("saved", on ? `${p.name} aktif ✓ (muat ulang tab ${p.name} yang terbuka)` : `${p.name} dimatikan`);
+    flash("saved", on ? t("optPlatformOn", p.name) : t("optPlatformOff", p.name));
   });
 });
 
@@ -107,9 +110,9 @@ function fill(v: PublicView): void {
     ["openrouterKey", v.keys.openrouter],
   ] as const) {
     field(name).value = "";
-    $(`${name}Hint`).textContent = hint ? `(tersimpan ${hint})` : "(belum diisi)";
+    $(`${name}Hint`).textContent = hint ? t("optKeySaved", hint) : t("optKeyEmpty");
   }
-  $("usage").textContent = `Hari ini: ${v.usage.today.toLocaleString("id-ID")} komentar dikirim`;
+  $("usage").textContent = t("optUsage", v.usage.today.toLocaleString(lang()));
 }
 
 const phrases = (n: string) =>
@@ -119,14 +122,13 @@ const lines = (n: string) =>
 
 async function renderBlockStatus(): Promise<void> {
   const b = await sendBg("block:status", {});
-  const when = b.updatedAt ? new Date(b.updatedAt).toLocaleString("id-ID") : "belum pernah";
+  const when = b.updatedAt ? new Date(b.updatedAt).toLocaleString(lang()) : t("optNever");
   $("blockStatus").textContent =
-    `Aktif: ${b.activeCount.toLocaleString("id-ID")} domain · daftar komunitas diperbarui ${when}` +
-    (b.lastError ? ` · gagal terakhir: ${b.lastError}` : "");
+    t("optBlockStatus", b.activeCount.toLocaleString(lang()), when) + (b.lastError ? t("optBlockLastError", b.lastError) : "");
 }
 
 $("blockRefresh").addEventListener("click", async () => {
-  $("blockStatus").textContent = "Mengunduh…";
+  $("blockStatus").textContent = t("optDownloading");
   await sendBg("block:refresh", {});
   await renderBlockStatus();
 });
@@ -172,7 +174,7 @@ function flash(id: string, text: string): void {
 
 async function save(): Promise<void> {
   fill(await sendBg("settings:update", { patch: read() }));
-  flash("saved", "Tersimpan ✓");
+  flash("saved", t("optSaved"));
 }
 
 form.addEventListener("submit", (e) => {
@@ -184,13 +186,13 @@ for (const btn of form.querySelectorAll<HTMLButtonElement>("button[data-clear]")
   btn.addEventListener("click", async () => {
     const name = btn.dataset.clear as "apiKey" | "openrouterKey";
     fill(await sendBg("settings:update", { patch: { [name]: "" } }));
-    flash("saved", "Key dihapus");
+    flash("saved", t("optKeyRemoved"));
   });
 }
 
 $("test").addEventListener("click", async () => {
   await save();
-  $("testResult").textContent = "Menguji…";
+  $("testResult").textContent = t("optTesting");
   const r = await sendBg("jev:test", {});
   $("testResult").textContent = r.ok ? `✓ ${r.latencyMs}ms · ${r.detail}` : `✗ ${r.detail}`;
 });
@@ -200,10 +202,10 @@ $("export").addEventListener("click", async () => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
   const a = document.createElement("a");
   a.href = url;
-  a.download = `anti-judol-pengaturan-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `anti-judol-settings-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  flash("dataResult", "Diekspor (tanpa API key)");
+  flash("dataResult", t("optExported"));
 });
 $("importBtn").addEventListener("click", () => $("importFile").click());
 $("importFile").addEventListener("change", async (e) => {
@@ -211,26 +213,26 @@ $("importFile").addEventListener("change", async (e) => {
   const file = input.files?.[0];
   input.value = "";
   if (!file) return;
-  if (file.size > 1_000_000) return flash("dataResult", "File terlalu besar");
+  if (file.size > 1_000_000) return flash("dataResult", t("optFileTooBig"));
   let data: unknown;
   try {
     data = JSON.parse(await file.text());
   } catch {
-    return flash("dataResult", "File bukan JSON yang valid");
+    return flash("dataResult", t("optFileNotJson"));
   }
   const r = await sendBg("data:import", { data });
-  if (!r.ok) return flash("dataResult", r.reason);
+  if (!r.ok) return flash("dataResult", t("optImportInvalid"));
   fill(await sendBg("settings:get", {}));
-  flash("dataResult", "Pengaturan diimpor ✓ (API key tetap milik perangkat ini)");
+  flash("dataResult", t("optImported"));
 });
 
 $("clearAllow").addEventListener("click", async () => {
   await sendBg("rules:clearAllow", {});
-  flash("dataResult", "Whitelist dihapus");
+  flash("dataResult", t("optWhitelistCleared"));
 });
 $("clearCache").addEventListener("click", async () => {
   await sendBg("cache:clear", {});
-  flash("dataResult", "Cache dihapus");
+  flash("dataResult", t("optCacheCleared"));
 });
 
 void sendBg("settings:get", {}).then((v) => {

@@ -1,44 +1,43 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width" />
-  <title>Anti-Judol Shield</title>
+  <title data-i18n="extName">Anti-Judol Shield</title>
   <link rel="stylesheet" href="ui.css" />
 </head>
 <body class="popup">
   <header>
-    <h1><img src="icons/icon-32.png" alt="" width="18" height="18" /> Anti-Judol</h1>
+    <h1><img src="icons/icon-32.png" alt="" width="18" height="18" /> <span data-i18n="extShortName"></span></h1>
     <span id="jev" class="pill" aria-live="polite">…</span>
   </header>
 
   <section id="unsupported" hidden>
-    <p class="muted">Halaman ini tidak dipindai. Anti-Judol bekerja di YouTube, dan di X, Reddit, Twitch, Disqus,
-      Facebook, Instagram, TikTok bila diaktifkan di <b>Pengaturan → Platform</b>.</p>
+    <p class="muted" data-i18n="popupUnsupported"></p>
   </section>
 
   <section id="page" hidden>
     <p class="muted small" id="pageKey"></p>
     <dl class="stats">
-      <div><dt>Dipindai</dt><dd id="sScanned">0</dd></div>
-      <div><dt>Judol</dt><dd id="sJudol">0</dd></div>
-      <div><dt>Spam</dt><dd id="sSusp">0</dd></div>
+      <div><dt data-i18n="statScanned"></dt><dd id="sScanned">0</dd></div>
+      <div><dt data-i18n="statJudol"></dt><dd id="sJudol">0</dd></div>
+      <div><dt data-i18n="statSpam"></dt><dd id="sSusp">0</dd></div>
     </dl>
 
-    <label class="row"><span>Aktif di halaman ini</span><input type="checkbox" id="pageOn" role="switch" /></label>
+    <label class="row"><span data-i18n="popupPageOn"></span><input type="checkbox" id="pageOn" role="switch" /></label>
     <p class="muted small" id="reason"></p>
-    <label class="row"><span>Tampilkan semua (sementara)</span><input type="checkbox" id="revealAll" role="switch" /></label>
-    <label class="row"><span>Aktif di situs <b id="siteName"></b></span><input type="checkbox" id="siteOn" role="switch" /></label>
-    <button type="button" id="resetPage" class="link">Pakai pengaturan default untuk halaman ini</button>
-    <button type="button" id="reportPage" class="link">Laporkan halaman ini ke aduankonten.id</button>
+    <label class="row"><span data-i18n="popupRevealAll"></span><input type="checkbox" id="revealAll" role="switch" /></label>
+    <label class="row"><span id="siteLabel"></span><input type="checkbox" id="siteOn" role="switch" /></label>
+    <button type="button" id="resetPage" class="link" data-i18n="popupResetPage"></button>
+    <button type="button" id="reportPage" class="link" data-i18n="popupReportPage"></button>
     <p class="muted small" id="reportHint" aria-live="polite"></p>
   </section>
 
   <hr />
-  <label class="row"><span>Perlindungan global</span><input type="checkbox" id="globalOn" role="switch" /></label>
+  <label class="row"><span data-i18n="popupGlobal"></span><input type="checkbox" id="globalOn" role="switch" /></label>
   <footer>
     <span class="muted small" id="allowCount"></span>
-    <button type="button" id="openOptions" class="link">Pengaturan</button>
+    <button type="button" id="openOptions" class="link" data-i18n="popupSettings"></button>
   </footer>
   <script type="module" src="popup.js"></script>
 </body>

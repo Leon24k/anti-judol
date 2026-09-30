@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="referrer" content="no-referrer" />
-  <title>Situs judi online diblokir — Anti-Judol Shield</title>
+  <title data-i18n="blockedTitle">Anti-Judol Shield</title>
   <link rel="stylesheet" href="ui.css" />
   <style>
     body.blocked { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
@@ -21,26 +21,23 @@
 <body class="blocked">
   <main class="card" aria-labelledby="title">
     <img src="icons/icon-128.png" alt="" />
-    <h1 id="title">Situs ini diblokir karena terindikasi judi online</h1>
-    <div class="domain" id="domain" aria-label="Alamat situs">—</div>
-    <p class="muted">Anti-Judol Shield menghentikan halaman ini sebelum dimuat. Tidak ada data dari situs ini yang dibuka.</p>
+    <h1 id="title" data-i18n="blockedHeading"></h1>
+    <div class="domain" id="domain" data-i18n-attr="aria-label:blockedDomainAria">—</div>
+    <p class="muted" data-i18n="blockedExplain"></p>
 
     <div class="actions">
-      <button type="button" class="primary" id="back">Kembali ke halaman aman</button>
-      <button type="button" id="report">Laporkan ke aduankonten.id</button>
+      <button type="button" class="primary" id="back" data-i18n="blockedBack"></button>
+      <button type="button" id="report" data-i18n="reportToAduan"></button>
     </div>
     <p class="muted small" id="reportHint" aria-live="polite"></p>
 
-    <div class="help" role="note">
-      Butuh bantuan untuk berhenti berjudi? Hubungi layanan konseling kesehatan jiwa
-      <b>Kemenkes 119 ext. 8</b>, atau cerita ke orang terdekat. Kamu tidak sendirian.
-    </div>
+    <div class="help" role="note" data-i18n="blockedHelp"></div>
 
     <details>
-      <summary>Ini bukan situs judi?</summary>
+      <summary data-i18n="blockedNotGambling"></summary>
       <div class="actions">
-        <button type="button" id="once">Buka sekali saja</button>
-        <button type="button" id="allow">Bukan situs judi, jangan blokir lagi</button>
+        <button type="button" id="once" data-i18n="blockedOnce"></button>
+        <button type="button" id="allow" data-i18n="blockedAllow"></button>
       </div>
       <p class="muted small" id="result" aria-live="polite"></p>
     </details>

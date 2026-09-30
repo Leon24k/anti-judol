@@ -147,6 +147,23 @@ When an element matches, its whole ad unit (single-child wrappers) is hidden beh
 - Turning sync off removes our items from sync.
 - Custom keywords are matched against the same de-obfuscated skeleton as the built-in rules. Allow wins over block.
 
+## Localization
+
+All UI text lives in `static/_locales/{en,id}/messages.json`, and the language follows the browser; English is the fallback. How text is applied:
+
+- HTML elements use `data-i18n="key"` and `data-i18n-attr="placeholder:key"`.
+- Code calls `t("key", ...subs)`. Keys are type-checked against the English file.
+- `$1`…`$9` are substitutions, and `$$` is a literal `$`.
+
+`tests/i18n.test.ts` checks that:
+
+- both languages define the same keys and placeholders
+- every used key exists and every defined key is used
+- the store length limits hold
+- no Indonesian text is hard-coded in the extension pages
+
+Reports sent to aduankonten.id stay in Indonesian on purpose, because they go to an Indonesian government service.
+
 ## Tests
 
 - `bun test`: unit and DOM tests (happy-dom, all network loading disabled) covering:
@@ -157,9 +174,9 @@ When an element matches, its whole ad unit (single-child wrappers) is hidden beh
   - the all-sites scanner
   - export/import and sync
   - the safety defaults
-- `bun run demo`: re-records `docs/demo.gif` and `docs/screenshot.png` in a real Chrome (local mode, no API key).
+- `bun run demo`: re-records `docs/demo.gif` and `docs/screenshot.png` (English) plus the `.id` versions (Indonesian) in a real Chrome (local mode, no API key).
 - `bun run e2e`: loads the build into a real Chrome via puppeteer-core.
   - Fixture pages are served at real site URLs through request interception.
   - Optional hosts are pre-granted, because Chrome's permission prompt can't be automated.
-  - It covers YouTube, opt-in X, DNR blocking with the real downloaded list, the warning page, all-sites mode, Laporkan, sync, and export/import.
+  - It covers YouTube, opt-in X, DNR blocking with the real downloaded list, the warning page, all-sites mode, Report, sync, export/import, and both UI languages.
   - Set `TS_KEY=…` to include live Jev checks. The key is passed via env only.

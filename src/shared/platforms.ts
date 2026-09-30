@@ -23,7 +23,7 @@ export const PLATFORMS: readonly PlatformInfo[] = [
   { id: "x", name: "X (Twitter)", matches: ["https://x.com/*", "https://twitter.com/*", "https://mobile.x.com/*"], hosts: ["x.com", "twitter.com"], beta: false, builtin: false, allFrames: false },
   { id: "reddit", name: "Reddit", matches: ["https://www.reddit.com/*", "https://old.reddit.com/*", "https://sh.reddit.com/*"], hosts: ["reddit.com"], beta: false, builtin: false, allFrames: false },
   { id: "twitch", name: "Twitch", matches: ["https://www.twitch.tv/*"], hosts: ["twitch.tv"], beta: false, builtin: false, allFrames: false },
-  { id: "disqus", name: "Disqus (kolom komentar situs berita/blog)", matches: ["https://disqus.com/embed/*"], hosts: ["disqus.com"], beta: false, builtin: false, allFrames: true },
+  { id: "disqus", name: "Disqus", matches: ["https://disqus.com/embed/*"], hosts: ["disqus.com"], beta: false, builtin: false, allFrames: true },
   { id: "facebook", name: "Facebook", matches: ["https://www.facebook.com/*", "https://m.facebook.com/*", "https://web.facebook.com/*"], hosts: ["facebook.com"], beta: true, builtin: false, allFrames: false },
   { id: "instagram", name: "Instagram", matches: ["https://www.instagram.com/*"], hosts: ["instagram.com"], beta: true, builtin: false, allFrames: false },
   { id: "tiktok", name: "TikTok", matches: ["https://www.tiktok.com/*"], hosts: ["tiktok.com"], beta: true, builtin: false, allFrames: false },

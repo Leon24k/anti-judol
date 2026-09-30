@@ -1,0 +1,449 @@
+{
+  "extName": {
+    "message": "Anti-Judol Shield"
+  },
+  "extShortName": {
+    "message": "Anti-Judol"
+  },
+  "extDescription": {
+    "message": "Sembunyikan spam judi online (judol) di YouTube & media sosial, dan blokir situs judi. Berjalan di perangkatmu."
+  },
+  "langCode": {
+    "message": "id"
+  },
+  "popupUnsupported": {
+    "message": "Halaman ini tidak dipindai. Anti-Judol bekerja di YouTube, dan di X, Reddit, Twitch, Disqus, Facebook, Instagram, TikTok bila diaktifkan di Pengaturan → Platform."
+  },
+  "statScanned": {
+    "message": "Dipindai"
+  },
+  "statJudol": {
+    "message": "Judol"
+  },
+  "statSpam": {
+    "message": "Spam"
+  },
+  "popupPageOn": {
+    "message": "Aktif di halaman ini"
+  },
+  "popupRevealAll": {
+    "message": "Tampilkan semua (sementara)"
+  },
+  "popupSiteOn": {
+    "message": "Aktif di situs $1"
+  },
+  "popupResetPage": {
+    "message": "Pakai pengaturan default untuk halaman ini"
+  },
+  "popupReportPage": {
+    "message": "Laporkan halaman ini ke aduankonten.id"
+  },
+  "popupGlobal": {
+    "message": "Perlindungan global"
+  },
+  "popupSettings": {
+    "message": "Pengaturan"
+  },
+  "popupAllowCount": {
+    "message": "$1 komentar di-whitelist"
+  },
+  "statusJevOk": {
+    "message": "Jev ✓ $1 ms"
+  },
+  "statusKeyRejected": {
+    "message": "API key ditolak"
+  },
+  "statusJevError": {
+    "message": "Jev error → lokal"
+  },
+  "statusJevReady": {
+    "message": "Jev siap"
+  },
+  "statusLocal": {
+    "message": "Mode lokal"
+  },
+  "reasonPage": {
+    "message": "Aturan khusus halaman ini"
+  },
+  "reasonSite": {
+    "message": "Mengikuti aturan situs"
+  },
+  "reasonGlobal": {
+    "message": "Mengikuti pengaturan global"
+  },
+  "reportCopied": {
+    "message": "Laporan disalin. Tempel di formulir aduankonten.id, lalu kirim."
+  },
+  "reportCopyFailed": {
+    "message": "Salin alamat halaman ini ke formulir aduankonten.id."
+  },
+  "optTitle": {
+    "message": "Anti-Judol Shield — Pengaturan"
+  },
+  "optProtection": {
+    "message": "Perlindungan"
+  },
+  "optEnabled": {
+    "message": "Aktif secara global"
+  },
+  "optAction": {
+    "message": "Tindakan untuk konten judol"
+  },
+  "optActionBlur": {
+    "message": "Blur + badge"
+  },
+  "optActionHide": {
+    "message": "Sembunyikan sepenuhnya"
+  },
+  "optActionBadge": {
+    "message": "Badge saja"
+  },
+  "optSensitivity": {
+    "message": "Sensitivitas"
+  },
+  "optSensLow": {
+    "message": "Rendah (lebih sedikit false positive)"
+  },
+  "optSensNormal": {
+    "message": "Normal"
+  },
+  "optSensHigh": {
+    "message": "Tinggi (lebih agresif)"
+  },
+  "optBlurSuspicious": {
+    "message": "Blur juga spam mencurigakan"
+  },
+  "optPreblur": {
+    "message": "Blur sementara saat Jev masih memeriksa"
+  },
+  "optPlatforms": {
+    "message": "Platform"
+  },
+  "optPlatformsHelp": {
+    "message": "YouTube aktif bawaan. Platform lain perlu izin akses situs tersebut; Chrome akan meminta izin saat kamu mencentangnya, dan izin bisa dicabut kapan saja."
+  },
+  "optPlatformDisqusNote": {
+    "message": "kolom komentar situs berita/blog"
+  },
+  "optBeta": {
+    "message": "beta"
+  },
+  "optPlatformNoPerm": {
+    "message": "(izin belum diberikan)"
+  },
+  "optPermDenied": {
+    "message": "Izin $1 ditolak"
+  },
+  "optPlatformOn": {
+    "message": "$1 aktif ✓ (muat ulang tab $1 yang terbuka)"
+  },
+  "optPlatformOff": {
+    "message": "$1 dimatikan"
+  },
+  "optAllSites": {
+    "message": "Semua situs (opsional)"
+  },
+  "optWebScan": {
+    "message": "Sembunyikan iklan, banner & link judi di semua situs"
+  },
+  "optWebScanHelp": {
+    "message": "Perlu izin \"baca dan ubah data di semua situs\". Pemeriksaan 100% lokal: isi halaman tidak pernah dikirim ke mana pun, termasuk ke AI. Juga menampilkan halaman peringatan (bukan layar error) saat membuka situs judi, dan memperingatkan halaman situs yang diretas untuk promosi judi."
+  },
+  "optAllSitesDenied": {
+    "message": "Izin semua situs ditolak"
+  },
+  "optWebScanOn": {
+    "message": "Pemindaian semua situs aktif ✓"
+  },
+  "optWebScanOff": {
+    "message": "Pemindaian semua situs dimatikan"
+  },
+  "optBlockTitle": {
+    "message": "Blokir situs judi"
+  },
+  "optBlockSites": {
+    "message": "Blokir situs judi online yang dikenal"
+  },
+  "optBlockRemote": {
+    "message": "Pakai daftar komunitas (HaGeZi Gambling, diperbarui tiap 12 jam)"
+  },
+  "optBlockHelp": {
+    "message": "Daftar diunduh dari cdn.jsdelivr.net. Tidak ada data tentang kamu yang dikirim; pemblokiran dilakukan browser sendiri, ekstensi tidak melihat situs yang kamu buka."
+  },
+  "optBlockStatus": {
+    "message": "Aktif: $1 domain · daftar komunitas diperbarui $2"
+  },
+  "optBlockLastError": {
+    "message": " · gagal terakhir: $1"
+  },
+  "optNever": {
+    "message": "belum pernah"
+  },
+  "optDownloading": {
+    "message": "Mengunduh…"
+  },
+  "optBlockDomains": {
+    "message": "Domain tambahan yang diblokir (satu per baris)"
+  },
+  "optAllowDomains": {
+    "message": "Jangan pernah blokir (satu per baris)"
+  },
+  "optAllowDomainsPh": {
+    "message": "situs-saya.com"
+  },
+  "optBlockRefresh": {
+    "message": "Perbarui daftar sekarang"
+  },
+  "optCustomTitle": {
+    "message": "Kata kunci sendiri"
+  },
+  "optCustomHelp": {
+    "message": "Dicocokkan setelah penyamaran dibongkar, jadi \"gacor88\" juga menangkap \"g4c0r 88\" dan \"𝐆𝐀𝐂𝐎𝐑𝟖𝟖\"."
+  },
+  "optCustomBlock": {
+    "message": "Selalu anggap judol (satu per baris)"
+  },
+  "optCustomBlockPh": {
+    "message": "nama situs judi yang sering muncul"
+  },
+  "optCustomAllow": {
+    "message": "Jangan pernah tandai (satu per baris)"
+  },
+  "optCustomAllowPh": {
+    "message": "nama channel / istilah game yang kamu suka"
+  },
+  "optSurfaces": {
+    "message": "Area yang dipindai"
+  },
+  "surfComment": {
+    "message": "Komentar"
+  },
+  "surfChat": {
+    "message": "Live chat"
+  },
+  "surfTitle": {
+    "message": "Judul video"
+  },
+  "optAiTitle": {
+    "message": "Klasifikasi AI (opsional)"
+  },
+  "optAiHelp": {
+    "message": "Tanpa langkah ini, ekstensi tetap bekerja 100% di perangkat dengan filter lokal dan tidak mengirim data apa pun."
+  },
+  "optAiNoticeTitle": {
+    "message": "Data yang dikirim jika diaktifkan:"
+  },
+  "optAiNotice": {
+    "message": "teks komentar/judul/chat yang tampil di layar pada platform yang didukung beserta nama pengirimnya, hanya ke api.typesafe.ai (dan openrouter.ai bila key fallback diisi), semata untuk menentukan apakah itu promosi judi. Tidak ada URL, riwayat, cookie, atau data akun yang dikirim."
+  },
+  "optPrivacyLink": {
+    "message": "Kebijakan privasi"
+  },
+  "optConsent": {
+    "message": "Saya setuju teks yang tampil dikirim ke API klasifikasi di atas"
+  },
+  "optApiKey": {
+    "message": "TypeSafe API key"
+  },
+  "optOrKey": {
+    "message": "OpenRouter API key — fallback opsional, berbayar ±$$0.042 / 1 juta token input"
+  },
+  "optRemove": {
+    "message": "Hapus"
+  },
+  "optKeyHelp": {
+    "message": "Key disimpan hanya di perangkat ini, tidak bisa dibaca halaman web maupun script konten, dan tidak pernah ditampilkan ulang. Kosongkan kolom untuk mempertahankan key yang tersimpan."
+  },
+  "optKeySaved": {
+    "message": "(tersimpan $1)"
+  },
+  "optKeyEmpty": {
+    "message": "(belum diisi)"
+  },
+  "optModel": {
+    "message": "Model (opsional, default jev-latest)"
+  },
+  "optDailyLimit": {
+    "message": "Batas komentar dikirim per hari (0 = tanpa batas)"
+  },
+  "optUsage": {
+    "message": "Hari ini: $1 komentar dikirim"
+  },
+  "optSave": {
+    "message": "Simpan"
+  },
+  "optTest": {
+    "message": "Tes koneksi Jev"
+  },
+  "optSaved": {
+    "message": "Tersimpan ✓"
+  },
+  "optKeyRemoved": {
+    "message": "Key dihapus"
+  },
+  "optTesting": {
+    "message": "Menguji…"
+  },
+  "optData": {
+    "message": "Data"
+  },
+  "optSync": {
+    "message": "Sinkronkan pengaturan & whitelist lewat akun Chrome"
+  },
+  "optSyncHelp": {
+    "message": "Memakai Chrome Sync milikmu. API key tidak pernah ikut disinkronkan atau diekspor."
+  },
+  "optExport": {
+    "message": "Ekspor pengaturan"
+  },
+  "optImport": {
+    "message": "Impor pengaturan"
+  },
+  "optClearAllow": {
+    "message": "Hapus whitelist komentar"
+  },
+  "optClearCache": {
+    "message": "Hapus cache klasifikasi"
+  },
+  "optExported": {
+    "message": "Diekspor (tanpa API key)"
+  },
+  "optFileTooBig": {
+    "message": "File terlalu besar"
+  },
+  "optFileNotJson": {
+    "message": "File bukan JSON yang valid"
+  },
+  "optImportInvalid": {
+    "message": "File bukan ekspor Anti-Judol yang valid"
+  },
+  "optImported": {
+    "message": "Pengaturan diimpor ✓ (API key tetap milik perangkat ini)"
+  },
+  "optWhitelistCleared": {
+    "message": "Whitelist dihapus"
+  },
+  "optCacheCleared": {
+    "message": "Cache dihapus"
+  },
+  "testNeedConsent": {
+    "message": "Centang persetujuan pengiriman teks dulu."
+  },
+  "testNoKey": {
+    "message": "API key belum diisi."
+  },
+  "testBadResponse": {
+    "message": "Respons tidak valid"
+  },
+  "badgeJudol": {
+    "message": "⚠ Promosi judol"
+  },
+  "badgeSuspicious": {
+    "message": "⚠ Spam mencurigakan"
+  },
+  "badgePending": {
+    "message": "Memeriksa…"
+  },
+  "badgeByJev": {
+    "message": "Deteksi: Jev AI"
+  },
+  "badgeByLocal": {
+    "message": "Deteksi: filter lokal"
+  },
+  "badgeHint": {
+    "message": "$1 · klik konten untuk melihat"
+  },
+  "btnReveal": {
+    "message": "Lihat"
+  },
+  "btnRevealAria": {
+    "message": "Tampilkan konten yang disembunyikan"
+  },
+  "btnHide": {
+    "message": "Sembunyikan"
+  },
+  "btnAllow": {
+    "message": "Bukan judol"
+  },
+  "btnAllowAria": {
+    "message": "Tandai bukan judol dan jangan sembunyikan lagi"
+  },
+  "btnReport": {
+    "message": "Laporkan"
+  },
+  "btnReportAria": {
+    "message": "Laporkan ke aduankonten.id (Komdigi)"
+  },
+  "reportCopiedShort": {
+    "message": "Laporan disalin ✓"
+  },
+  "webHiddenAd": {
+    "message": "⚠ Iklan judi online disembunyikan"
+  },
+  "pageWarnAria": {
+    "message": "Peringatan halaman judi online"
+  },
+  "pageWarnTitle": {
+    "message": "Halaman ini berisi promosi judi online"
+  },
+  "pageWarnBody": {
+    "message": "$1 kemungkinan diretas dan disusupi iklan judi. Jangan masukkan data pribadi atau melakukan transfer."
+  },
+  "pageBack": {
+    "message": "Kembali"
+  },
+  "reportToAduan": {
+    "message": "Laporkan ke aduankonten.id"
+  },
+  "pageStay": {
+    "message": "Tetap lihat"
+  },
+  "blockedTitle": {
+    "message": "Situs judi online diblokir — Anti-Judol Shield"
+  },
+  "blockedTitleDomain": {
+    "message": "$1 diblokir — Anti-Judol Shield"
+  },
+  "blockedHeading": {
+    "message": "Situs ini diblokir karena terindikasi judi online"
+  },
+  "blockedDomainAria": {
+    "message": "Alamat situs"
+  },
+  "blockedUnknown": {
+    "message": "situs tidak dikenal"
+  },
+  "blockedExplain": {
+    "message": "Anti-Judol Shield menghentikan halaman ini sebelum dimuat. Tidak ada data dari situs ini yang dibuka."
+  },
+  "blockedBack": {
+    "message": "Kembali ke halaman aman"
+  },
+  "blockedReportCopied": {
+    "message": "Laporan disalin. Tempel (Ctrl/⌘+V) di formulir aduankonten.id, lalu kirim."
+  },
+  "blockedReportFallback": {
+    "message": "Salin tautan ini ke formulir: $1"
+  },
+  "blockedHelp": {
+    "message": "Butuh bantuan untuk berhenti berjudi? Hubungi layanan konseling kesehatan jiwa Kemenkes 119 ext. 8, atau cerita ke orang terdekat. Kamu tidak sendirian."
+  },
+  "blockedNotGambling": {
+    "message": "Ini bukan situs judi?"
+  },
+  "blockedOnce": {
+    "message": "Buka sekali saja"
+  },
+  "blockedAllow": {
+    "message": "Bukan situs judi, jangan blokir lagi"
+  },
+  "blockedConfirmOnce": {
+    "message": "Buka $1 sekali di tab ini? Situs ini ada di daftar situs judi."
+  },
+  "blockedConfirmAllow": {
+    "message": "Jangan blokir $1 lagi? Kamu bisa membatalkannya di Pengaturan."
+  },
+  "blockedSavedOpening": {
+    "message": "Disimpan. Membuka situs…"
+  }
+}

@@ -1,134 +1,125 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Anti-Judol Shield — Pengaturan</title>
+  <title data-i18n="optTitle">Anti-Judol Shield</title>
   <link rel="stylesheet" href="ui.css" />
 </head>
 <body class="options">
-  <h1><img src="icons/icon-32.png" alt="" width="24" height="24" /> Anti-Judol Shield — Pengaturan</h1>
+  <h1><img src="icons/icon-32.png" alt="" width="24" height="24" /> <span data-i18n="optTitle"></span></h1>
 
   <form id="form" autocomplete="off">
-    <h2>Perlindungan</h2>
-    <label class="row"><span>Aktif secara global</span><input type="checkbox" name="enabled" role="switch" /></label>
+    <h2 data-i18n="optProtection"></h2>
+    <label class="row"><span data-i18n="optEnabled"></span><input type="checkbox" name="enabled" role="switch" /></label>
     <div class="field">
-      <label for="action">Tindakan untuk konten judol</label>
+      <label for="action" data-i18n="optAction"></label>
       <select id="action" name="action">
-        <option value="blur">Blur + badge</option>
-        <option value="hide">Sembunyikan sepenuhnya</option>
-        <option value="badge">Badge saja</option>
+        <option value="blur" data-i18n="optActionBlur"></option>
+        <option value="hide" data-i18n="optActionHide"></option>
+        <option value="badge" data-i18n="optActionBadge"></option>
       </select>
     </div>
     <div class="field">
-      <label for="sensitivity">Sensitivitas</label>
+      <label for="sensitivity" data-i18n="optSensitivity"></label>
       <select id="sensitivity" name="sensitivity">
-        <option value="low">Rendah (lebih sedikit false positive)</option>
-        <option value="normal">Normal</option>
-        <option value="high">Tinggi (lebih agresif)</option>
+        <option value="low" data-i18n="optSensLow"></option>
+        <option value="normal" data-i18n="optSensNormal"></option>
+        <option value="high" data-i18n="optSensHigh"></option>
       </select>
     </div>
-    <label class="row"><span>Blur juga spam mencurigakan</span><input type="checkbox" name="blurSuspicious" /></label>
-    <label class="row"><span>Blur sementara saat Jev masih memeriksa</span><input type="checkbox" name="preblurLocal" /></label>
+    <label class="row"><span data-i18n="optBlurSuspicious"></span><input type="checkbox" name="blurSuspicious" /></label>
+    <label class="row"><span data-i18n="optPreblur"></span><input type="checkbox" name="preblurLocal" /></label>
 
-    <h2>Platform</h2>
-    <p class="muted small">YouTube aktif bawaan. Platform lain perlu izin akses situs tersebut; Chrome akan meminta
-      izin saat kamu mencentangnya, dan izin bisa dicabut kapan saja.</p>
+    <h2 data-i18n="optPlatforms"></h2>
+    <p class="muted small" data-i18n="optPlatformsHelp"></p>
     <div id="platforms"></div>
 
-    <h2>Semua situs (opsional)</h2>
-    <label class="row"><span>Sembunyikan iklan, banner &amp; link judi di semua situs</span><input type="checkbox" id="webScan" role="switch" /></label>
-    <p class="muted small">Perlu izin "baca dan ubah data di semua situs". Pemeriksaan <b>100% lokal</b>: isi halaman
-      tidak pernah dikirim ke mana pun, termasuk ke AI. Juga menampilkan halaman peringatan (bukan layar error) saat
-      membuka situs judi, dan memperingatkan halaman situs yang diretas untuk promosi judi.</p>
+    <h2 data-i18n="optAllSites"></h2>
+    <label class="row"><span data-i18n="optWebScan"></span><input type="checkbox" id="webScan" role="switch" /></label>
+    <p class="muted small" data-i18n="optWebScanHelp"></p>
 
-    <h2>Blokir situs judi</h2>
-    <label class="row"><span>Blokir situs judi online yang dikenal</span><input type="checkbox" name="blockSites" role="switch" /></label>
-    <label class="row"><span>Pakai daftar komunitas (HaGeZi Gambling, diperbarui tiap 12 jam)</span><input type="checkbox" name="blockRemote" /></label>
-    <p class="muted small">Daftar diunduh dari cdn.jsdelivr.net. Tidak ada data tentang kamu yang dikirim; pemblokiran
-      dilakukan browser sendiri, ekstensi tidak melihat situs yang kamu buka. <span id="blockStatus"></span></p>
+    <h2 data-i18n="optBlockTitle"></h2>
+    <label class="row"><span data-i18n="optBlockSites"></span><input type="checkbox" name="blockSites" role="switch" /></label>
+    <label class="row"><span data-i18n="optBlockRemote"></span><input type="checkbox" name="blockRemote" /></label>
+    <p class="muted small"><span data-i18n="optBlockHelp"></span> <span id="blockStatus"></span></p>
     <div class="field">
-      <label for="blockDomains">Domain tambahan yang diblokir (satu per baris)</label>
+      <label for="blockDomains" data-i18n="optBlockDomains"></label>
       <textarea id="blockDomains" name="blockDomains" rows="3" spellcheck="false" placeholder="slot-gacor88.com"></textarea>
     </div>
     <div class="field">
-      <label for="allowDomains">Jangan pernah blokir (satu per baris)</label>
-      <textarea id="allowDomains" name="allowDomains" rows="3" spellcheck="false" placeholder="situs-saya.com"></textarea>
+      <label for="allowDomains" data-i18n="optAllowDomains"></label>
+      <textarea id="allowDomains" name="allowDomains" rows="3" spellcheck="false" data-i18n-attr="placeholder:optAllowDomainsPh"></textarea>
     </div>
-    <div class="actions"><button type="button" id="blockRefresh">Perbarui daftar sekarang</button></div>
+    <div class="actions"><button type="button" id="blockRefresh" data-i18n="optBlockRefresh"></button></div>
 
-    <h2>Kata kunci sendiri</h2>
-    <p class="muted small">Dicocokkan setelah penyamaran dibongkar, jadi "gacor88" juga menangkap "g4c0r 88" dan "𝐆𝐀𝐂𝐎𝐑𝟖𝟖".</p>
+    <h2 data-i18n="optCustomTitle"></h2>
+    <p class="muted small" data-i18n="optCustomHelp"></p>
     <div class="field">
-      <label for="customBlock">Selalu anggap judol (satu per baris)</label>
-      <textarea id="customBlock" name="customBlock" rows="3" spellcheck="false" placeholder="nama situs judi yang sering muncul"></textarea>
+      <label for="customBlock" data-i18n="optCustomBlock"></label>
+      <textarea id="customBlock" name="customBlock" rows="3" spellcheck="false" data-i18n-attr="placeholder:optCustomBlockPh"></textarea>
     </div>
     <div class="field">
-      <label for="customAllow">Jangan pernah tandai (satu per baris)</label>
-      <textarea id="customAllow" name="customAllow" rows="3" spellcheck="false" placeholder="nama channel / istilah game yang kamu suka"></textarea>
+      <label for="customAllow" data-i18n="optCustomAllow"></label>
+      <textarea id="customAllow" name="customAllow" rows="3" spellcheck="false" data-i18n-attr="placeholder:optCustomAllowPh"></textarea>
     </div>
 
-    <h2>Area yang dipindai</h2>
-    <label class="row"><span>Komentar</span><input type="checkbox" name="surfaces.comment" /></label>
-    <label class="row"><span>Live chat</span><input type="checkbox" name="surfaces.live_chat" /></label>
-    <label class="row"><span>Judul video</span><input type="checkbox" name="surfaces.video_title" /></label>
+    <h2 data-i18n="optSurfaces"></h2>
+    <label class="row"><span data-i18n="surfComment"></span><input type="checkbox" name="surfaces.comment" /></label>
+    <label class="row"><span data-i18n="surfChat"></span><input type="checkbox" name="surfaces.live_chat" /></label>
+    <label class="row"><span data-i18n="surfTitle"></span><input type="checkbox" name="surfaces.video_title" /></label>
 
-    <h2>Klasifikasi AI (opsional)</h2>
-    <p class="muted small">Tanpa langkah ini, ekstensi tetap bekerja 100% di perangkat dengan filter lokal dan
-      <b>tidak mengirim data apa pun</b>.</p>
+    <h2 data-i18n="optAiTitle"></h2>
+    <p class="muted small" data-i18n="optAiHelp"></p>
 
     <div class="notice" role="note">
-      <b>Data yang dikirim jika diaktifkan:</b> teks komentar/judul/chat YouTube yang tampil di layar dan nama
-      pengirimnya, hanya ke <code>api.typesafe.ai</code> (dan <code>openrouter.ai</code> bila key fallback diisi),
-      semata untuk menentukan apakah itu promosi judi. Tidak ada URL, riwayat, cookie, atau data akun yang dikirim.
-      <a href="https://github.com/Leon24k/anti-judol/blob/main/PRIVACY.md" target="_blank" rel="noopener noreferrer">Kebijakan privasi</a>
+      <b data-i18n="optAiNoticeTitle"></b> <span data-i18n="optAiNotice"></span>
+      <a href="https://github.com/Leon24k/anti-judol/blob/main/PRIVACY.md" target="_blank" rel="noopener noreferrer" data-i18n="optPrivacyLink"></a>
     </div>
-    <label class="row"><span>Saya setuju teks yang tampil dikirim ke API klasifikasi di atas</span><input type="checkbox" name="remoteConsent" /></label>
+    <label class="row"><span data-i18n="optConsent"></span><input type="checkbox" name="remoteConsent" /></label>
 
     <div class="field">
-      <label for="apiKey">TypeSafe API key <span class="muted" id="apiKeyHint"></span></label>
+      <label for="apiKey"><span data-i18n="optApiKey"></span> <span class="muted" id="apiKeyHint"></span></label>
       <div class="inline">
         <input type="password" id="apiKey" name="apiKey" spellcheck="false" placeholder="apikey_…" />
-        <button type="button" data-clear="apiKey">Hapus</button>
+        <button type="button" data-clear="apiKey" data-i18n="optRemove"></button>
       </div>
     </div>
     <div class="field">
-      <label for="openrouterKey">OpenRouter API key — fallback opsional, berbayar ±$0.042 / 1 juta token input
-        <span class="muted" id="openrouterKeyHint"></span></label>
+      <label for="openrouterKey"><span data-i18n="optOrKey"></span> <span class="muted" id="openrouterKeyHint"></span></label>
       <div class="inline">
         <input type="password" id="openrouterKey" name="openrouterKey" spellcheck="false" placeholder="sk-or-…" />
-        <button type="button" data-clear="openrouterKey">Hapus</button>
+        <button type="button" data-clear="openrouterKey" data-i18n="optRemove"></button>
       </div>
     </div>
-    <p class="muted small">Key disimpan hanya di perangkat ini, tidak bisa dibaca halaman web maupun script konten,
-      dan tidak pernah ditampilkan ulang. Kosongkan kolom untuk mempertahankan key yang tersimpan.</p>
+    <p class="muted small" data-i18n="optKeyHelp"></p>
     <div class="field">
-      <label for="model">Model (opsional, default jev-latest)</label>
+      <label for="model" data-i18n="optModel"></label>
       <input type="text" id="model" name="model" placeholder="jev-latest" spellcheck="false" />
     </div>
     <div class="field">
-      <label for="dailyLimit">Batas komentar dikirim per hari (0 = tanpa batas)</label>
+      <label for="dailyLimit" data-i18n="optDailyLimit"></label>
       <input type="number" id="dailyLimit" name="dailyLimit" min="0" max="1000000" step="100" />
       <span class="muted small" id="usage"></span>
     </div>
 
     <div class="actions">
-      <button type="submit" class="primary">Simpan</button>
-      <button type="button" id="test">Tes koneksi Jev</button>
+      <button type="submit" class="primary" data-i18n="optSave"></button>
+      <button type="button" id="test" data-i18n="optTest"></button>
       <span id="saved" aria-live="polite"></span>
       <span id="testResult" aria-live="polite"></span>
     </div>
 
-    <h2>Data</h2>
-    <label class="row"><span>Sinkronkan pengaturan &amp; whitelist lewat akun Chrome</span><input type="checkbox" name="syncEnabled" /></label>
-    <p class="muted small">Memakai Chrome Sync milikmu. API key <b>tidak pernah</b> ikut disinkronkan atau diekspor.</p>
+    <h2 data-i18n="optData"></h2>
+    <label class="row"><span data-i18n="optSync"></span><input type="checkbox" name="syncEnabled" /></label>
+    <p class="muted small" data-i18n="optSyncHelp"></p>
     <div class="actions">
-      <button type="button" id="export">Ekspor pengaturan</button>
-      <button type="button" id="importBtn">Impor pengaturan</button>
+      <button type="button" id="export" data-i18n="optExport"></button>
+      <button type="button" id="importBtn" data-i18n="optImport"></button>
       <input type="file" id="importFile" accept="application/json,.json" hidden />
     </div>
     <div class="actions">
-      <button type="button" id="clearAllow">Hapus whitelist komentar</button>
-      <button type="button" id="clearCache">Hapus cache klasifikasi</button>
+      <button type="button" id="clearAllow" data-i18n="optClearAllow"></button>
+      <button type="button" id="clearCache" data-i18n="optClearCache"></button>
       <span id="dataResult" class="muted small" aria-live="polite"></span>
     </div>
   </form>
