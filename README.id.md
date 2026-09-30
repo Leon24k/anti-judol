@@ -5,7 +5,7 @@
 <h1 align="center">Anti-Judol Shield</h1>
 
 <p align="center">
-  Otomatis menyembunyikan spam judi online (judol) di komentar, live chat, dan judul video YouTube.<br />
+  Menyembunyikan spam judi online (judol) di YouTube dan di berbagai situs, serta memblokir situs judi.<br />
   <a href="README.md">English</a> · <a href="PRIVACY.md">Privasi</a> · <a href="https://github.com/Leon24k/anti-judol/issues">Laporkan masalah</a>
 </p>
 
@@ -31,12 +31,18 @@ Anti-Judol Shield membongkar penyamaran itu dan mem-blur spamnya sebelum sempat 
 - **Instan.** Spam yang jelas langsung di-blur sebelum muncul di layar, dan scroll tetap mulus.
 - **Tembus penyamaran.** Mengenali huruf berspasi, angka pengganti huruf, font Unicode aneh, huruf kembar dari alfabet lain, karakter tersembunyi, dan link yang disamarkan.
 - **Bekerja di komentar, live chat, dan judul video**, di YouTube desktop maupun mobile.
+- **Tidak cuma YouTube.** Bisa juga dinyalakan untuk X, Reddit, Twitch, kolom komentar Disqus, serta (beta) Facebook, Instagram, dan TikTok.
+- **Memblokir situs judi.** Lebih dari 140.000 domain judol dihentikan sebelum sempat dimuat, dan kamu melihat halaman peringatan sebagai gantinya.
+- **Membersihkan situs biasa (opsional).** Menyembunyikan banner judi, iframe iklan, dan link spam di situs berita, streaming, maupun blog. Juga memberi peringatan kalau sebuah situs diretas untuk promosi judi.
+- **Lapor dengan sekali klik.** Tombol **Laporkan** menyiapkan laporan yang tinggal ditempel ke [aduankonten.id](https://aduankonten.id), layanan aduan konten milik Komdigi.
 - **Kamu yang pegang kendali:**
   - Klik komentar yang di-blur kalau tetap ingin membacanya.
   - Tombol **"Bukan judol"** memperbaiki salah deteksi supaya komentar itu tidak disembunyikan lagi.
   - Perlindungan bisa dimatikan untuk satu video saja, untuk seluruh YouTube, atau total.
   - **"Tampilkan semua (sementara)"** menampilkan semua komentar di halaman yang sedang dibuka.
-- **Privat sejak awal.** Semua berjalan di perangkatmu. Tidak ada data yang dikirim kecuali kamu sendiri yang menyalakan mode AI.
+  - Tambahkan kata kunci sendiri yang selalu disembunyikan atau tidak pernah disembunyikan.
+  - Ekspor/impor pengaturan, atau sinkronkan antar komputer lewat akun Chrome.
+- **Privat sejak awal.** Semua berjalan di perangkatmu. Tidak ada data tentang kamu yang dikirim kecuali kamu sendiri yang menyalakan mode AI.
 - **Mode AI opsional** memakai [Jev dari TypeSafe](https://typesafe.ai) untuk menangkap spam halus tanpa kata kunci jelas, misalnya "modal receh jadi jutaan, cek profil aku".
 
 ## Instalasi
@@ -55,7 +61,7 @@ Sementara itu, pasang manual di Chrome, Edge, Brave, atau browser Chromium lain:
 2. Buka `chrome://extensions` (atau `edge://extensions`).
 3. Nyalakan **Developer mode** di pojok kanan atas.
 4. Klik **Load unpacked**, lalu pilih folder `dist`.
-5. Buka video YouTube mana saja. Spam judi akan langsung di-blur.
+5. Buka video YouTube mana saja. Spam judi akan langsung di-blur, dan situs judi yang dikenal otomatis diblokir.
 
 ## Cara pakai
 
@@ -69,8 +75,17 @@ Di komentar yang di-blur:
 
 - **Lihat** membuka komentarnya, dan **Sembunyikan** menutupnya lagi.
 - **Bukan judol** menandai bahwa itu bukan spam judi. Komentar langsung dibuka dan tidak akan disembunyikan lagi.
+- **Laporkan** menyalin isi laporan (link, isi komentar, dan waktunya) lalu membuka aduankonten.id. Tempel ke formulirnya dan kirim. Tidak ada yang terkirim otomatis.
 
 Pengaturan lain ada di menu **Pengaturan** (klik kanan ikon → *Options*), misalnya pilihan blur atau sembunyikan total, tingkat sensitivitas, dan area yang dipindai.
+
+## Di luar YouTube
+
+Semua fitur ini ada di **Pengaturan**. Chrome akan meminta izin saat masing-masing fitur dinyalakan, dan izinnya bisa dicabut kapan saja.
+
+- **Platform lain.** Di bagian **Platform**, centang X, Reddit, Twitch, Disqus, Facebook, Instagram, atau TikTok. Chrome hanya meminta akses ke situs itu saja. Muat ulang tab situs tersebut yang sudah terbuka.
+- **Blokir situs judi** aktif sejak awal. Fitur ini memakai [daftar HaGeZi Gambling](https://github.com/hagezi/dns-blocklists) yang dikelola komunitas dan diperbarui tiap 12 jam, dan kamu bisa menambahkan domain sendiri. Situs pemerintah, kampus, bank, dan platform besar tidak akan pernah diblokir, meskipun daftarnya keliru. Kalau ada situs yang salah diblokir, pilih **Ini bukan situs judi?** di halaman peringatan.
+- **Semua situs.** Nyalakan **Sembunyikan iklan, banner & link judi di semua situs** untuk membersihkan iklan judi di mana saja. Fitur ini butuh izin akses ke semua situs. Pemeriksaannya sepenuhnya di perangkatmu: isi halaman tidak pernah dikirim ke mana pun, termasuk ke AI. Dengan fitur ini, situs judi yang diblokir juga menampilkan halaman peringatan yang jelas, bukan layar error.
 
 ## Mode AI (opsional)
 
@@ -84,9 +99,9 @@ Saat mode AI aktif, teks komentar yang kamu scroll dan nama pengirimnya dikirim 
 
 ## Privasi
 
-- Tanpa mode AI, **tidak ada data yang keluar dari komputermu**.
+- Tanpa mode AI, **tidak ada data tentang kamu yang keluar dari komputermu**. Satu-satunya unduhan otomatis adalah daftar publik domain judi.
 - Tidak ada akun, pelacakan, analitik, maupun server milik kami.
-- Ekstensi hanya berjalan di YouTube.
+- Ekstensi berjalan di YouTube dan di situs yang kamu aktifkan saja. Pemblokiran dilakukan Chrome sendiri, jadi ekstensi tidak tahu situs apa saja yang kamu buka.
 
 Detail lengkap ada di [kebijakan privasi](PRIVACY.md).
 
@@ -100,6 +115,12 @@ Nyalakan mode AI atau naikkan sensitivitas. Contoh spam yang lolos juga sangat m
 
 **Bikin YouTube lemot nggak?**
 Tidak. Pemeriksaan per komentar butuh kurang dari satu milidetik, dan hanya komentar di dekat layar yang diperiksa.
+
+**Kenapa minta akses "semua situs"?**
+Tidak diminta, kecuali kamu menyalakan opsi semua situs. YouTube jalan tanpa izin itu, dan platform lain hanya meminta akses ke situsnya masing-masing. Pemblokiran situs judi juga tetap jalan tanpa izin itu, bedanya kamu akan melihat layar error Chrome, bukan halaman peringatan.
+
+**Situs biasa ikut terblokir.**
+Di halaman peringatan, buka **Ini bukan situs judi?** lalu pilih **Bukan situs judi, jangan blokir lagi**. Bisa juga dengan menambahkannya di **Jangan pernah blokir** di Pengaturan. Tolong [laporkan juga](https://github.com/Leon24k/anti-judol/issues) supaya daftarnya bisa diperbaiki.
 
 **Bisa untuk bahasa lain?**
 Filter bawaan dirancang untuk spam judi berbahasa Indonesia dan Inggris. Mode AI memahami lebih banyak bahasa.

@@ -110,6 +110,7 @@ export type BgRequest<T extends BgType = BgType> = { type: T } & BgMessages[T]["
 export const PRIVILEGED: ReadonlySet<BgType> = new Set<BgType>([
   "settings:get",
   "settings:update",
+  "rules:get",
   "rules:site",
   "rules:page",
   "rules:clearAllow",

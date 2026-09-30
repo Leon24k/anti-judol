@@ -55,3 +55,15 @@ describe("daily quota", () => {
     expect(r.used).toBe(0);
   });
 });
+
+describe("message privileges", () => {
+  test("content scripts can only send the four page-safe messages", async () => {
+    const { PRIVILEGED } = await import("../src/shared/messages");
+    const src = await Bun.file("src/shared/messages.ts").text();
+    const bg = src.slice(src.indexOf("export interface BgMessages"), src.indexOf("export type BgType"));
+    const all = [...bg.matchAll(/^\s+"?([a-z]+(?::[A-Za-z]+)?)"?: \{ req:/gm)].map((m) => m[1]!);
+    expect(all.length).toBeGreaterThan(15);
+    const open = all.filter((t) => !PRIVILEGED.has(t as never)).sort();
+    expect(open).toEqual(["block:check", "classify", "rule:allow", "state:get"]);
+  });
+});

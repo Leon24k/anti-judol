@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Anti-Judol Shield",
   "short_name": "Anti-Judol",
-  "version": "1.0.0",
-  "description": "Blur promosi judi online (judol) di komentar, live chat, dan judul video YouTube secara real-time.",
+  "version": "1.1.0",
+  "description": "Sembunyikan spam judi online (judol) di YouTube & media sosial, dan blokir situs judi. Berjalan di perangkatmu.",
   "homepage_url": "https://github.com/Leon24k/anti-judol",
   "minimum_chrome_version": "116",
   "icons": {

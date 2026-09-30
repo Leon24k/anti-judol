@@ -5,7 +5,7 @@
 <h1 align="center">Anti-Judol Shield</h1>
 
 <p align="center">
-  Hides online-gambling ("judol") spam in YouTube comments, live chat, and video titles automatically.<br />
+  Hides online-gambling ("judol") spam in YouTube comments and across the web, and blocks gambling sites.<br />
   <a href="README.id.md">Bahasa Indonesia</a> · <a href="PRIVACY.md">Privacy</a> · <a href="https://github.com/Leon24k/anti-judol/issues">Report a problem</a>
 </p>
 
@@ -31,12 +31,18 @@ Anti-Judol Shield undoes those tricks and blurs the spam before you even see it.
 - **Instant.** Obvious spam is blurred before it appears on screen, so scrolling stays smooth.
 - **Sees through disguises.** It handles spaced-out letters, numbers in place of letters, fancy Unicode fonts, look-alike letters, hidden characters, and disguised links.
 - **Covers comments, live chat, and video titles**, on both desktop and mobile YouTube.
+- **Works beyond YouTube.** Optionally also on X, Reddit, Twitch, Disqus comment sections, and (beta) Facebook, Instagram, and TikTok.
+- **Blocks gambling websites.** Over 140,000 known judol domains are stopped before they load, with a clear warning page instead.
+- **Cleans up ordinary websites (optional).** Hides gambling banners, ad iframes, and spam links on news sites, streaming sites, and blogs, and warns you when a site has been hacked to promote gambling.
+- **Report in one click.** **Laporkan** prepares a ready-to-paste report for [aduankonten.id](https://aduankonten.id), the Indonesian government's content complaint service.
 - **You stay in control:**
   - Click a blurred comment to read it anyway.
   - **"Bukan judol"** ("not gambling") marks a false alarm so it's never hidden again.
   - Turn protection on or off for a single video, for all of YouTube, or everywhere.
   - **"Show all (temporary)"** reveals everything on the current page.
-- **Private by default.** Everything runs on your device. Nothing is sent anywhere unless you turn on AI mode yourself.
+  - Add your own words to always hide or never hide.
+  - Export/import your settings, or sync them across your computers through Chrome.
+- **Private by default.** Everything runs on your device. Nothing about you is sent anywhere unless you turn on AI mode yourself.
 - **Optional AI mode** using [Jev by TypeSafe](https://typesafe.ai) catches subtler spam that doesn't use obvious keywords, such as "modal receh jadi jutaan, cek profil aku".
 
 ## Install
@@ -55,7 +61,7 @@ Until then you can install it manually in Chrome, Edge, Brave, or another Chromi
 2. Open `chrome://extensions` (or `edge://extensions`).
 3. Turn on **Developer mode** (top-right corner).
 4. Click **Load unpacked** and select the `dist` folder.
-5. Open any YouTube video. Gambling spam is blurred automatically.
+5. Open any YouTube video. Gambling spam is blurred automatically, and known gambling sites are blocked.
 
 ## Using it
 
@@ -69,8 +75,17 @@ On a blurred comment:
 
 - **Lihat** ("show") reveals it, and **Sembunyikan** ("hide") covers it again.
 - **Bukan judol** means it isn't gambling spam. It's un-hidden and won't be hidden again.
+- **Laporkan** copies a report (link, the comment, and when you saw it) and opens aduankonten.id. Paste it into the form and submit. Nothing is sent automatically.
 
 More options, like choosing between blurring and hiding completely, sensitivity, and which areas to scan, are in **Settings** (right-click the icon → *Options*).
+
+## Beyond YouTube
+
+All of these are in **Settings**. Chrome asks for permission for each one when you switch it on, and you can revoke it any time.
+
+- **Other platforms.** Under **Platform**, tick X, Reddit, Twitch, Disqus, Facebook, Instagram, or TikTok. Chrome only asks for access to that one site. Reload any tabs of that site that are already open.
+- **Gambling-site blocking** is on by default. It uses the community-maintained [HaGeZi Gambling list](https://github.com/hagezi/dns-blocklists), refreshed every 12 hours, and you can add your own domains. Government, campus, bank, and major-platform sites are never blocked, even if a list is wrong. If a site is blocked by mistake, choose **Ini bukan situs judi?** on the warning page.
+- **All sites.** Switch on **Sembunyikan iklan, banner & link judi di semua situs** to clean up gambling ads everywhere. This needs permission for all sites. The checking is done entirely on your device: page content is never sent anywhere, not even in AI mode. It also turns the blocked-site error screen into a friendly warning page.
 
 ## AI mode (optional)
 
@@ -84,9 +99,9 @@ When AI mode is on, the text of comments you scroll past, plus the commenter's d
 
 ## Privacy
 
-- Without AI mode, **no data leaves your computer**.
+- Without AI mode, **nothing about you leaves your computer**. The only automatic download is the public list of gambling domains.
 - There are no accounts, no tracking, no analytics, and no servers run by us.
-- The extension only runs on YouTube.
+- The extension runs on YouTube, plus only the sites you enable. Blocking is done by Chrome itself, so the extension never sees which sites you visit.
 
 Full details are in the [privacy policy](PRIVACY.md).
 
@@ -101,6 +116,12 @@ Turn on AI mode or raise the sensitivity. Please also report examples so the bui
 **Does it slow down YouTube?**
 No. Checking a comment takes a fraction of a millisecond, and only comments near your screen are checked.
 
+**Why does it want access to "all sites"?**
+It doesn't, unless you switch on the all-sites option. YouTube works without it, and the other platforms each ask only for their own site. Blocking gambling sites works without it too; you just see Chrome's error screen instead of the warning page.
+
+**A normal website got blocked.**
+Open **Ini bukan situs judi?** on the warning page and choose **Bukan situs judi, jangan blokir lagi**. You can also add it under **Jangan pernah blokir** in Settings. Please [report it](https://github.com/Leon24k/anti-judol/issues) so the list can be fixed.
+
 **Does it work in other languages?**
 The built-in filter is tuned for Indonesian and English gambling spam. AI mode understands more languages.
 
@@ -114,4 +135,4 @@ bun run check   # typecheck + unit tests + build
 bun run e2e     # end-to-end test in a real Chrome
 ```
 
-YouTube changes its page structure from time to time. If the extension suddenly stops working, the selectors in `src/content/adapters.ts` usually need an update.
+Websites change their page structure from time to time. If the extension suddenly stops working on a site, the selectors for that platform in `src/content/adapters.ts` usually need an update.
