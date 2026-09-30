@@ -17,12 +17,14 @@ export interface Settings {
   surfaces: Record<Surface, boolean>;
   /** Your TypeSafe API key (stored only in chrome.storage.local, never sent to content scripts). */
   apiKey: string;
-  /** Optional base URL override (default https://api.typesafe.ai). */
-  endpoint: string;
   /** Optional model override (default jev-latest). */
   model: string;
   /** Optional OpenRouter key, used only as fallback when TypeSafe fails (paid: ~$0.042/1M input tokens). */
   openrouterKey: string;
+  /** User explicitly agreed that visible comment text is sent to the classifier API. */
+  remoteConsent: boolean;
+  /** Max comments sent to the API per day (cost guard). 0 = unlimited. */
+  dailyLimit: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -33,9 +35,10 @@ export const DEFAULT_SETTINGS: Settings = {
   preblurLocal: true,
   surfaces: { comment: true, live_chat: true, video_title: true },
   apiKey: "",
-  endpoint: "",
   model: "",
   openrouterKey: "",
+  remoteConsent: false,
+  dailyLimit: 20000,
 };
 
 /** Per-site and per-page overrides. `true` = force on, `false` = whitelist (off). Absent = inherit. */
@@ -54,6 +57,8 @@ const pick = <T extends string>(v: unknown, opts: readonly T[], d: T): T =>
   typeof v === "string" && (opts as readonly string[]).includes(v) ? (v as T) : d;
 const bool = (v: unknown, d: boolean) => (typeof v === "boolean" ? v : d);
 const str = (v: unknown, d: string) => (typeof v === "string" ? v.slice(0, 2048) : d);
+/** Model ids like "jev-latest", "jev-1.13". Anything else falls back to the default. */
+const MODEL_RE = /^[A-Za-z0-9._~\/-]{0,64}$/;
 const obj = (v: unknown): Record<string, unknown> =>
   v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
 
@@ -73,9 +78,13 @@ export function sanitizeSettings(raw: unknown): Settings {
       video_title: bool(s.video_title, d.surfaces.video_title),
     },
     apiKey: str(r.apiKey, d.apiKey).trim(),
-    endpoint: str(r.endpoint, d.endpoint).trim(),
-    model: str(r.model, d.model).trim(),
+    model: MODEL_RE.test(str(r.model, "").trim()) ? str(r.model, "").trim() : d.model,
     openrouterKey: str(r.openrouterKey, d.openrouterKey).trim(),
+    remoteConsent: bool(r.remoteConsent, d.remoteConsent),
+    dailyLimit:
+      typeof r.dailyLimit === "number" && Number.isFinite(r.dailyLimit)
+        ? Math.min(1_000_000, Math.max(0, Math.round(r.dailyLimit)))
+        : d.dailyLimit,
   };
 }
 
@@ -101,8 +110,12 @@ export function pruneNewest<V>(rec: Record<string, V>, max: number, at: (v: V) =
   return Object.fromEntries(entries.slice(0, max));
 }
 
-/** Whether a Jev call can be made with these settings. */
+/** Whether a Jev call can be made: a key exists AND the user consented to sending text. */
 export function jevConfigured(s: Settings): boolean {
-  const primary = s.apiKey.length > 0 && (s.endpoint === "" || /^https:\/\//.test(s.endpoint));
-  return primary || s.openrouterKey.length > 0;
+  return s.remoteConsent && (s.apiKey.length > 0 || s.openrouterKey.length > 0);
+}
+
+/** Masked view of a secret for UI ("…3f9a"), never the secret itself. */
+export function maskKey(k: string): string | null {
+  return k ? `…${k.slice(-4)}` : null;
 }

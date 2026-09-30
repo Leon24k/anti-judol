@@ -11,6 +11,7 @@ import {
   MAX_ALLOW,
   MAX_PAGE_RULES,
   jevConfigured,
+  maskKey,
   pruneNewest,
   sanitizeRules,
   sanitizeSettings,
@@ -18,19 +19,30 @@ import {
   type Settings,
 } from "../shared/settings";
 import { classifyWithFallback, endpointsFor } from "./jev";
+import { DailyQuota } from "./quota";
 import { Scheduler } from "./scheduler";
 
 const K_SETTINGS = "aj:settings";
 const K_RULES = "aj:rules";
 const K_CACHE = "aj:cache";
+const K_USAGE = "aj:usage";
+
+// Settings (incl. API keys) readable only by the service worker and extension pages,
+// never by content scripts, even if one were compromised.
+void chrome.storage.local.setAccessLevel({ accessLevel: "TRUSTED_CONTEXTS" }).catch(() => {});
 
 let settings: Settings = DEFAULT_SETTINGS;
 let rules: Rules = DEFAULT_RULES;
 let status: JevStatus = { state: "disabled" };
+const quota = new DailyQuota(() => settings.dailyLimit);
 
 const scheduler = new Scheduler({
-  send: (items) => classifyWithFallback(items, endpointsFor(settings)),
-  available: () => jevConfigured(settings),
+  send: (items) => {
+    quota.consume(items.length);
+    persistUsageSoon();
+    return classifyWithFallback(items, endpointsFor(settings));
+  },
+  available: () => jevConfigured(settings) && quota.available,
   sensitivity: () => settings.sensitivity,
   onStatus: (s) => {
     status = s;
@@ -42,11 +54,12 @@ const scheduler = new Scheduler({
 
 const ready = (async () => {
   const [local, session] = await Promise.all([
-    chrome.storage.local.get([K_SETTINGS, K_RULES]),
+    chrome.storage.local.get([K_SETTINGS, K_RULES, K_USAGE]),
     chrome.storage.session.get(K_CACHE).catch(() => ({}) as Record<string, unknown>),
   ]);
   settings = sanitizeSettings(local[K_SETTINGS]);
   rules = sanitizeRules(local[K_RULES]);
+  quota.load(local[K_USAGE]);
   const cached = session[K_CACHE];
   if (Array.isArray(cached)) scheduler.cache.load(cached);
   status = jevConfigured(settings) ? status : { state: "disabled" };
@@ -60,6 +73,25 @@ function persistCacheSoon(): void {
     // Session storage survives service-worker restarts but not browser restarts.
     void chrome.storage.session.set({ [K_CACHE]: scheduler.cache.dump() }).catch(() => {});
   }, 2000);
+}
+
+let usageTimer: ReturnType<typeof setTimeout> | undefined;
+function persistUsageSoon(): void {
+  if (usageTimer !== undefined) return;
+  usageTimer = setTimeout(() => {
+    usageTimer = undefined;
+    void chrome.storage.local.set({ [K_USAGE]: quota.snapshot() }).catch(() => {});
+  }, 5000);
+}
+
+/** What extension pages get back: settings without secrets + masked key hints. */
+function publicView() {
+  const { apiKey, openrouterKey, ...rest } = settings;
+  return {
+    settings: rest,
+    keys: { typesafe: maskKey(apiKey), openrouter: maskKey(openrouterKey) },
+    usage: { today: quota.used, limit: settings.dailyLimit },
+  };
 }
 
 async function saveRules(): Promise<void> {
@@ -145,20 +177,25 @@ const handlers: Handlers = {
     };
   },
   async "settings:get"() {
-    return { settings, status };
+    return { ...publicView(), status };
   },
   async "settings:update"({ patch }) {
     const prev = settings;
     settings = sanitizeSettings({ ...settings, ...patch, surfaces: { ...settings.surfaces, ...patch.surfaces } });
     await chrome.storage.local.set({ [K_SETTINGS]: settings });
-    if (prev.apiKey !== settings.apiKey || prev.openrouterKey !== settings.openrouterKey || prev.endpoint !== settings.endpoint || prev.model !== settings.model) {
+    if (
+      prev.apiKey !== settings.apiKey ||
+      prev.openrouterKey !== settings.openrouterKey ||
+      prev.model !== settings.model ||
+      prev.remoteConsent !== settings.remoteConsent
+    ) {
       scheduler.reset();
       scheduler.cache.clear();
       status = { state: "disabled" };
     }
     // Sensitivity change needs no cache purge: probabilities are cached, thresholds apply at read time.
     await broadcast();
-    return { settings };
+    return publicView();
   },
   async "cache:clear"() {
     scheduler.cache.clear();
@@ -166,6 +203,7 @@ const handlers: Handlers = {
     return { ok: true };
   },
   async "jev:test"() {
+    if (!settings.remoteConsent) return { ok: false, latencyMs: 0, detail: "Centang persetujuan pengiriman teks dulu." };
     if (!jevConfigured(settings)) return { ok: false, latencyMs: 0, detail: "API key belum diisi." };
     const t0 = performance.now();
     try {

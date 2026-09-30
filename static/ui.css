@@ -32,3 +32,8 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent);
 }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
 #saved, #testResult { font-size: 12px; }
+h1 img { vertical-align: -3px; }
+.inline { display: flex; gap: 6px; } .inline input { flex: 1; }
+.notice { border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 6px; padding: 8px 10px; font-size: 12px; margin: 8px 0; }
+.notice code { font-size: 11px; }
+.field input[type="number"] { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit; width: 140px; }

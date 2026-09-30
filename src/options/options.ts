@@ -1,5 +1,8 @@
-/** Options page: global settings + API keys. Writes go through the service worker (single writer). */
-import { sendBg } from "../shared/messages";
+/**
+ * Options page. Writes go through the service worker (single writer).
+ * API keys are write-only: the worker never returns them, only a masked hint ("…3f9a").
+ */
+import { sendBg, type PublicView } from "../shared/messages";
 import type { Settings, Surface } from "../shared/settings";
 
 const form = document.getElementById("form") as HTMLFormElement;
@@ -8,27 +11,46 @@ const $ = (id: string) => document.getElementById(id) as HTMLElement;
 function field(name: string): HTMLInputElement | HTMLSelectElement {
   return form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement;
 }
+const checkbox = (n: string) => field(n) as HTMLInputElement;
 
-function fill(s: Settings): void {
-  for (const k of ["enabled", "blurSuspicious", "preblurLocal"] as const) (field(k) as HTMLInputElement).checked = s[k];
-  for (const k of ["action", "sensitivity", "apiKey", "endpoint", "model", "openrouterKey"] as const) field(k).value = s[k];
-  for (const k of Object.keys(s.surfaces) as Surface[]) (field(`surfaces.${k}`) as HTMLInputElement).checked = s.surfaces[k];
+function fill(v: PublicView): void {
+  const s = v.settings;
+  for (const k of ["enabled", "blurSuspicious", "preblurLocal", "remoteConsent"] as const) checkbox(k).checked = s[k];
+  for (const k of ["action", "sensitivity", "model"] as const) field(k).value = s[k];
+  field("dailyLimit").value = String(s.dailyLimit);
+  for (const k of Object.keys(s.surfaces) as Surface[]) checkbox(`surfaces.${k}`).checked = s.surfaces[k];
+  for (const [name, hint] of [
+    ["apiKey", v.keys.typesafe],
+    ["openrouterKey", v.keys.openrouter],
+  ] as const) {
+    field(name).value = "";
+    $(`${name}Hint`).textContent = hint ? `(tersimpan ${hint})` : "(belum diisi)";
+  }
+  $("usage").textContent = `Hari ini: ${v.usage.today.toLocaleString("id-ID")} komentar dikirim`;
 }
 
 function read(): Partial<Settings> {
-  const checked = (n: string) => (field(n) as HTMLInputElement).checked;
-  return {
-    enabled: checked("enabled"),
-    blurSuspicious: checked("blurSuspicious"),
-    preblurLocal: checked("preblurLocal"),
+  const patch: Partial<Settings> = {
+    enabled: checkbox("enabled").checked,
+    blurSuspicious: checkbox("blurSuspicious").checked,
+    preblurLocal: checkbox("preblurLocal").checked,
+    remoteConsent: checkbox("remoteConsent").checked,
     action: field("action").value as Settings["action"],
     sensitivity: field("sensitivity").value as Settings["sensitivity"],
-    apiKey: field("apiKey").value.trim(),
-    endpoint: field("endpoint").value.trim(),
     model: field("model").value.trim(),
-    openrouterKey: field("openrouterKey").value.trim(),
-    surfaces: { comment: checked("surfaces.comment"), live_chat: checked("surfaces.live_chat"), video_title: checked("surfaces.video_title") },
+    dailyLimit: Number(field("dailyLimit").value) || 0,
+    surfaces: {
+      comment: checkbox("surfaces.comment").checked,
+      live_chat: checkbox("surfaces.live_chat").checked,
+      video_title: checkbox("surfaces.video_title").checked,
+    },
   };
+  // Empty key field = keep the stored key.
+  const apiKey = field("apiKey").value.trim();
+  const openrouterKey = field("openrouterKey").value.trim();
+  if (apiKey) patch.apiKey = apiKey;
+  if (openrouterKey) patch.openrouterKey = openrouterKey;
+  return patch;
 }
 
 function flash(id: string, text: string): void {
@@ -40,13 +62,7 @@ function flash(id: string, text: string): void {
 }
 
 async function save(): Promise<void> {
-  const patch = read();
-  if (patch.endpoint && !/^https:\/\//.test(patch.endpoint)) {
-    flash("saved", "Base URL harus diawali https://");
-    return;
-  }
-  const { settings } = await sendBg("settings:update", { patch });
-  fill(settings);
+  fill(await sendBg("settings:update", { patch: read() }));
   flash("saved", "Tersimpan ✓");
 }
 
@@ -54,6 +70,14 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
   void save();
 });
+
+for (const btn of form.querySelectorAll<HTMLButtonElement>("button[data-clear]")) {
+  btn.addEventListener("click", async () => {
+    const name = btn.dataset.clear as "apiKey" | "openrouterKey";
+    fill(await sendBg("settings:update", { patch: { [name]: "" } }));
+    flash("saved", "Key dihapus");
+  });
+}
 
 $("test").addEventListener("click", async () => {
   await save();
@@ -71,4 +95,4 @@ $("clearCache").addEventListener("click", async () => {
   flash("dataResult", "Cache dihapus");
 });
 
-void sendBg("settings:get", {}).then(({ settings }) => fill(settings));
+void sendBg("settings:get", {}).then(fill);

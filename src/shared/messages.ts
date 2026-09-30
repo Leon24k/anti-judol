@@ -53,6 +53,14 @@ export interface PageInfo {
   revealed: boolean;
 }
 
+/** Settings as seen by extension pages: secrets are never returned, only masked hints. */
+export type PublicSettings = Omit<Settings, "apiKey" | "openrouterKey">;
+export interface PublicView {
+  settings: PublicSettings;
+  keys: { typesafe: string | null; openrouter: string | null };
+  usage: { today: number; limit: number };
+}
+
 /** Messages handled by the service worker: request → response. */
 export interface BgMessages {
   classify: { req: { items: ClassifyItem[] }; res: { results: ClassifyResult[] } };
@@ -62,8 +70,8 @@ export interface BgMessages {
   "rules:page": { req: { pageKey: string; on: boolean | null }; res: { ok: true } };
   "rules:clearAllow": { req: Record<string, never>; res: { ok: true } };
   "rules:get": { req: { pageKey: string; siteKey: string }; res: { site: boolean | null; page: boolean | null; allowCount: number; global: boolean } };
-  "settings:get": { req: Record<string, never>; res: { settings: Settings; status: JevStatus } };
-  "settings:update": { req: { patch: Partial<Settings> }; res: { settings: Settings } };
+  "settings:get": { req: Record<string, never>; res: PublicView & { status: JevStatus } };
+  "settings:update": { req: { patch: Partial<Settings> }; res: PublicView };
   "cache:clear": { req: Record<string, never>; res: { ok: true } };
   "jev:test": { req: Record<string, never>; res: { ok: boolean; latencyMs: number; detail: string } };
 }

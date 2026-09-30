@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Shield -->
+  <path d="M64 6 L112 22 V60 C112 90 92 112 64 122 C36 112 16 90 16 60 V22 Z" fill="#c62828"/>
+  <path d="M64 16 L102 29 V60 C102 84 86 102 64 111 C42 102 26 84 26 60 V29 Z" fill="#e53935"/>
+  <!-- Slot "7" crossed out -->
+  <text x="64" y="84" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="62" fill="#fff">7</text>
+  <circle cx="64" cy="63" r="34" fill="none" stroke="#fff" stroke-width="9"/>
+  <line x1="40" y1="39" x2="88" y2="87" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+</svg>

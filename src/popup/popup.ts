@@ -30,8 +30,8 @@ async function activeTab(): Promise<chrome.tabs.Tab | undefined> {
 
 async function main(): Promise<void> {
   $("openOptions").addEventListener("click", () => void chrome.runtime.openOptionsPage());
-  const { settings, status } = await sendBg("settings:get", {});
-  renderStatus(status, settings.apiKey.length > 0 || settings.openrouterKey.length > 0);
+  const { settings, status, keys } = await sendBg("settings:get", {});
+  renderStatus(status, settings.remoteConsent && (keys.typesafe !== null || keys.openrouter !== null));
 
   const tab = await activeTab();
   let info: PageInfo | undefined;

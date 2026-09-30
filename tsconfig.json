@@ -15,5 +15,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "tests", "build.ts"]
+  "include": ["src", "tests", "scripts", "build.ts"]
 }

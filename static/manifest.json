@@ -2,9 +2,16 @@
   "manifest_version": 3,
   "name": "Anti-Judol Shield",
   "short_name": "Anti-Judol",
-  "version": "0.1.0",
-  "description": "Blurs online-gambling (judol) promotion in YouTube comments, titles, and live chat in real time.",
+  "version": "1.0.0",
+  "description": "Blur promosi judi online (judol) di komentar, live chat, dan judul video YouTube secara real-time.",
+  "homepage_url": "https://github.com/Leon24k/anti-judol",
   "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
   "permissions": ["storage"],
   "host_permissions": [
     "https://www.youtube.com/*",
@@ -12,7 +19,9 @@
     "https://api.typesafe.ai/*",
     "https://openrouter.ai/*"
   ],
-  "optional_host_permissions": ["https://*/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+  },
   "background": { "service_worker": "background.js", "type": "module" },
   "content_scripts": [
     {
@@ -23,6 +32,10 @@
       "all_frames": true
     }
   ],
-  "action": { "default_popup": "popup.html", "default_title": "Anti-Judol Shield" },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Anti-Judol Shield",
+    "default_icon": { "16": "icons/icon-16.png", "32": "icons/icon-32.png" }
+  },
   "options_page": "options.html"
 }

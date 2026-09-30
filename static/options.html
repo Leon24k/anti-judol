@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="ui.css" />
 </head>
 <body class="options">
-  <h1>🛡️ Anti-Judol Shield — Pengaturan</h1>
+  <h1><img src="icons/icon-32.png" alt="" width="24" height="24" /> Anti-Judol Shield — Pengaturan</h1>
 
   <form id="form" autocomplete="off">
     <h2>Perlindungan</h2>
@@ -35,24 +35,43 @@
     <label class="row"><span>Live chat</span><input type="checkbox" name="surfaces.live_chat" /></label>
     <label class="row"><span>Judul video</span><input type="checkbox" name="surfaces.video_title" /></label>
 
-    <h2>Jev AI (TypeSafe)</h2>
-    <p class="muted small">Tanpa API key, ekstensi tetap bekerja dengan filter lokal. Key hanya disimpan di perangkat ini
-      (chrome.storage.local) dan hanya dikirim ke endpoint di bawah.</p>
+    <h2>Klasifikasi AI (opsional)</h2>
+    <p class="muted small">Tanpa langkah ini, ekstensi tetap bekerja 100% di perangkat dengan filter lokal dan
+      <b>tidak mengirim data apa pun</b>.</p>
+
+    <div class="notice" role="note">
+      <b>Data yang dikirim jika diaktifkan:</b> teks komentar/judul/chat YouTube yang tampil di layar dan nama
+      pengirimnya, hanya ke <code>api.typesafe.ai</code> (dan <code>openrouter.ai</code> bila key fallback diisi),
+      semata untuk menentukan apakah itu promosi judi. Tidak ada URL, riwayat, cookie, atau data akun yang dikirim.
+      <a href="https://github.com/Leon24k/anti-judol/blob/main/PRIVACY.md" target="_blank" rel="noopener noreferrer">Kebijakan privasi</a>
+    </div>
+    <label class="row"><span>Saya setuju teks yang tampil dikirim ke API klasifikasi di atas</span><input type="checkbox" name="remoteConsent" /></label>
+
     <div class="field">
-      <label for="apiKey">TypeSafe API key</label>
-      <input type="password" id="apiKey" name="apiKey" spellcheck="false" />
+      <label for="apiKey">TypeSafe API key <span class="muted" id="apiKeyHint"></span></label>
+      <div class="inline">
+        <input type="password" id="apiKey" name="apiKey" spellcheck="false" placeholder="apikey_…" />
+        <button type="button" data-clear="apiKey">Hapus</button>
+      </div>
     </div>
     <div class="field">
-      <label for="endpoint">Base URL (opsional, default https://api.typesafe.ai)</label>
-      <input type="text" id="endpoint" name="endpoint" placeholder="https://api.typesafe.ai" spellcheck="false" />
+      <label for="openrouterKey">OpenRouter API key — fallback opsional, berbayar ±$0.042 / 1 juta token input
+        <span class="muted" id="openrouterKeyHint"></span></label>
+      <div class="inline">
+        <input type="password" id="openrouterKey" name="openrouterKey" spellcheck="false" placeholder="sk-or-…" />
+        <button type="button" data-clear="openrouterKey">Hapus</button>
+      </div>
     </div>
+    <p class="muted small">Key disimpan hanya di perangkat ini, tidak bisa dibaca halaman web maupun script konten,
+      dan tidak pernah ditampilkan ulang. Kosongkan kolom untuk mempertahankan key yang tersimpan.</p>
     <div class="field">
       <label for="model">Model (opsional, default jev-latest)</label>
       <input type="text" id="model" name="model" placeholder="jev-latest" spellcheck="false" />
     </div>
     <div class="field">
-      <label for="openrouterKey">OpenRouter API key — fallback opsional (berbayar ±$0.042 / 1 juta token input)</label>
-      <input type="password" id="openrouterKey" name="openrouterKey" spellcheck="false" />
+      <label for="dailyLimit">Batas komentar dikirim per hari (0 = tanpa batas)</label>
+      <input type="number" id="dailyLimit" name="dailyLimit" min="0" max="1000000" step="100" />
+      <span class="muted small" id="usage"></span>
     </div>
 
     <div class="actions">

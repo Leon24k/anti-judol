@@ -43,10 +43,10 @@ export interface JevEndpoint {
   headers: Record<string, string>;
 }
 
+/** Endpoints are fixed (no user-configurable URL) so the API key can only ever go to these hosts. */
 export function endpointFor(s: Settings): JevEndpoint {
-  const base = (s.endpoint || TYPESAFE_BASE).replace(/\/+$/, "");
   return {
-    url: `${base}/v1/systemone`,
+    url: `${TYPESAFE_BASE}/v1/systemone`,
     model: s.model || DEFAULT_MODEL,
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${s.apiKey}` },
   };
