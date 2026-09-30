@@ -57,6 +57,15 @@ export interface PageInfo {
   revealed: boolean;
 }
 
+export interface BlocklistStatus {
+  remoteCount: number;
+  activeCount: number;
+  updatedAt: number;
+  /** Last download failure (not named `error`: that key marks a failed response). */
+  lastError: string | null;
+  warningPage: boolean;
+}
+
 /** Settings as seen by extension pages: secrets are never returned, only masked hints. */
 export type PublicSettings = Omit<Settings, "apiKey" | "openrouterKey">;
 export interface PublicView {
@@ -77,6 +86,10 @@ export interface BgMessages {
   "settings:get": { req: Record<string, never>; res: PublicView & { status: JevStatus; grantedPlatforms: PlatformId[] } };
   "settings:update": { req: { patch: Partial<Settings> }; res: PublicView };
   "cache:clear": { req: Record<string, never>; res: { ok: true } };
+  "block:status": { req: Record<string, never>; res: BlocklistStatus };
+  "block:refresh": { req: Record<string, never>; res: BlocklistStatus };
+  "block:bypass": { req: { domain: string; tabId: number }; res: { ok: boolean } };
+  "block:allowDomain": { req: { domain: string }; res: { ok: true } };
   "jev:test": { req: Record<string, never>; res: { ok: boolean; latencyMs: number; detail: string } };
 }
 export type BgType = keyof BgMessages;
@@ -91,6 +104,10 @@ export const PRIVILEGED: ReadonlySet<BgType> = new Set<BgType>([
   "rules:clearAllow",
   "cache:clear",
   "jev:test",
+  "block:status",
+  "block:refresh",
+  "block:bypass",
+  "block:allowDomain",
 ]);
 
 /** Messages handled by content scripts (sent via chrome.tabs.sendMessage). */

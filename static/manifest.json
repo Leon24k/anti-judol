@@ -12,7 +12,7 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": ["storage", "scripting"],
+  "permissions": ["storage", "scripting", "declarativeNetRequest", "alarms"],
   "host_permissions": [
     "https://www.youtube.com/*",
     "https://m.youtube.com/*",
@@ -26,7 +26,11 @@
     "https://disqus.com/embed/*",
     "https://www.facebook.com/*", "https://m.facebook.com/*", "https://web.facebook.com/*",
     "https://www.instagram.com/*",
-    "https://www.tiktok.com/*"
+    "https://www.tiktok.com/*",
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    { "resources": ["blocked.html"], "matches": ["<all_urls>"] }
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"

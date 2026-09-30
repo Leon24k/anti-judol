@@ -194,6 +194,53 @@ try {
   const regs2 = await worker!.evaluate(() => chrome.scripting.getRegisteredContentScripts().then((r) => r.map((x) => x.id)));
   check("disabling X unregisters it", !regs2.includes("aj-platform-x"), JSON.stringify(regs2));
 
+  // ---------- gambling-site blocking (declarativeNetRequest) ----------
+  {
+    const t0 = Date.now();
+    let bs = (await send({ type: "block:status" })) as { activeCount: number; remoteCount: number; lastError: string | null; warningPage: boolean };
+    while (bs.activeCount < 100_000 && !bs.lastError && Date.now() - t0 < 30_000) {
+      await sleep(500);
+      bs = (await send({ type: "block:status" })) as typeof bs;
+    }
+    check("community list downloaded + loaded into DNR", bs.activeCount > 100_000, `${bs.activeCount} domains, ${Date.now() - t0}ms, error=${bs.lastError}`);
+    const n = await worker!.evaluate(() => chrome.declarativeNetRequest.getDynamicRules().then((r) => r.length));
+    check("rules chunked within DNR limits", n > 0 && n < 200, `${n} dynamic rules`);
+
+    const visit = async (url: string) => {
+      const p = await browser!.newPage();
+      await p.goto(url, { waitUntil: "domcontentloaded", timeout: 15_000 }).catch(() => {});
+      await sleep(400);
+      const out = { url: p.url(), title: await p.title().catch(() => "") };
+      await p.close();
+      return out;
+    };
+    const listed = await visit("https://agenslots77.com/daftar");
+    check("listed gambling domain → warning page", listed.url.includes("/blocked.html#https://agenslots77.com/daftar"), listed.url);
+
+    await send({ type: "settings:update", patch: { blockDomains: ["aj-e2e-judi-test.com"] } });
+    const custom = await visit("https://www.aj-e2e-judi-test.com/");
+    check("user-added domain (and its subdomains) blocked", custom.url.includes("blocked.html"), custom.url);
+
+    const safe = await visit("https://www.google.com/");
+    check("protected domain never redirected", !safe.url.includes("blocked.html"), safe.url);
+
+    // Warning page actions: allow permanently.
+    const bp = await browser!.newPage();
+    await bp.goto("https://aj-e2e-judi-test.com/", { waitUntil: "domcontentloaded" }).catch(() => {});
+    await sleep(300);
+    check("warning page shows the domain", (await bp.$eval("#domain", (e) => e.textContent).catch(() => "")) === "aj-e2e-judi-test.com");
+    bp.on("dialog", (d) => void d.accept());
+    await bp.click("details summary");
+    await bp.click("#allow");
+    await sleep(1200);
+    await bp.close();
+    const after = (await send({ type: "settings:get" })) as { settings: { allowDomains: string[] } };
+    check("'Bukan situs judi' adds to allow list", after.settings.allowDomains.includes("aj-e2e-judi-test.com"));
+    const again = await visit("https://aj-e2e-judi-test.com/");
+    check("allowed domain no longer blocked", !again.url.includes("blocked.html"), again.url);
+    await send({ type: "settings:update", patch: { blockDomains: [], allowDomains: [] } });
+  }
+
   if (TS_KEY) {
     await opts.type("#apiKey", TS_KEY);
     await opts.click('input[name="remoteConsent"]');

@@ -36,4 +36,5 @@ h1 img { vertical-align: -3px; }
 .inline { display: flex; gap: 6px; } .inline input { flex: 1; }
 .notice { border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 6px; padding: 8px 10px; font-size: 12px; margin: 8px 0; }
 .notice code { font-size: 11px; }
+.field textarea { font: 12px/1.5 ui-monospace, Menlo, monospace; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit; resize: vertical; }
 .field input[type="number"] { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit; width: 140px; }

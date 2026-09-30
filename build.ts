@@ -28,6 +28,7 @@ async function build(): Promise<void> {
     Bun.build({ ...common, entrypoints: ["src/background/index.ts"], outdir: OUT, naming: "background.js", format: "esm" }),
     Bun.build({ ...common, entrypoints: ["src/popup/popup.ts"], outdir: OUT, naming: "popup.js", format: "esm" }),
     Bun.build({ ...common, entrypoints: ["src/options/options.ts"], outdir: OUT, naming: "options.js", format: "esm" }),
+    Bun.build({ ...common, entrypoints: ["src/blocked/blocked.ts"], outdir: OUT, naming: "blocked.js", format: "esm" }),
   ]);
 
   for (const r of results) {

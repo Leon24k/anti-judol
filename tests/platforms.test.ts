@@ -80,7 +80,11 @@ describe("platform registry", () => {
 
   test("manifest optional_host_permissions mirror platforms.ts", async () => {
     const manifest = await Bun.file("static/manifest.json").json();
-    expect([...manifest.optional_host_permissions].sort()).toEqual(OPTIONAL_PLATFORMS.flatMap((p) => p.matches).sort());
+    // <all_urls> is the single broad optional permission (warning page + all-sites scan, opt-in).
+    const opt = [...manifest.optional_host_permissions];
+    expect(opt.filter((h) => h === "<all_urls>")).toHaveLength(1);
+    expect(opt.filter((h) => h !== "<all_urls>").sort()).toEqual(OPTIONAL_PLATFORMS.flatMap((p) => p.matches).sort());
+    expect(manifest.host_permissions).not.toContain("<all_urls>");
     for (const p of PLATFORMS.filter((x) => x.builtin)) for (const m of p.matches) expect(manifest.host_permissions).toContain(m);
   });
 });

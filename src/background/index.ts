@@ -19,6 +19,7 @@ import {
   type Settings,
 } from "../shared/settings";
 import { classifyWithFallback, endpointsFor } from "./jev";
+import { applyBlocking, blocklistMeta, bypassOnce, ensureAlarm, isBlocklistAlarm, refreshRemote } from "./blocking";
 import { grantedPlatforms, syncPlatformScripts } from "./platforms";
 import { DailyQuota } from "./quota";
 import { Scheduler } from "./scheduler";
@@ -65,11 +66,39 @@ const ready = (async () => {
   if (Array.isArray(cached)) scheduler.cache.load(cached);
   status = jevConfigured(settings) ? status : { state: "disabled" };
   await syncPlatformScripts(settings.platforms).catch(() => {});
+  void setupBlocking(false);
 })();
 
+const blockCfg = () => ({ enabled: settings.blockSites, remote: settings.blockRemote, block: settings.blockDomains, allow: settings.allowDomains });
+
+/** Serialized so overlapping updates can't interleave rule writes. */
+let blockChain: Promise<void> = Promise.resolve();
+function setupBlocking(refresh: boolean): Promise<void> {
+  blockChain = blockChain
+    .then(async () => {
+      const cfg = blockCfg();
+      await ensureAlarm(cfg);
+      if (cfg.enabled && cfg.remote && (refresh || blocklistMeta().updatedAt === 0)) await refreshRemote();
+      await applyBlocking(cfg);
+    })
+    .catch((e) => console.warn("blocking setup failed", e));
+  return blockChain;
+}
+
+chrome.alarms.onAlarm.addListener((a) => {
+  if (isBlocklistAlarm(a)) void ready.then(() => setupBlocking(true));
+});
+
 // User granted/revoked a site in chrome://extensions → keep registrations consistent.
-chrome.permissions.onAdded.addListener(() => void ready.then(() => syncPlatformScripts(settings.platforms)).catch(() => {}));
-chrome.permissions.onRemoved.addListener(() => void ready.then(() => syncPlatformScripts(settings.platforms)).catch(() => {}));
+const onPermChange = () =>
+  void ready
+    .then(async () => {
+      await syncPlatformScripts(settings.platforms);
+      await setupBlocking(false); // warning page vs plain block depends on <all_urls>
+    })
+    .catch(() => {});
+chrome.permissions.onAdded.addListener(onPermChange);
+chrome.permissions.onRemoved.addListener(onPermChange);
 
 let cacheTimer: ReturnType<typeof setTimeout> | undefined;
 function persistCacheSoon(): void {
@@ -197,6 +226,13 @@ const handlers: Handlers = {
     await chrome.storage.local.set({ [K_SETTINGS]: settings });
     await syncPlatformScripts(settings.platforms).catch(() => {});
     if (
+      prev.blockSites !== settings.blockSites ||
+      prev.blockRemote !== settings.blockRemote ||
+      prev.blockDomains.join() !== settings.blockDomains.join() ||
+      prev.allowDomains.join() !== settings.allowDomains.join()
+    )
+      await setupBlocking(false);
+    if (
       prev.apiKey !== settings.apiKey ||
       prev.openrouterKey !== settings.openrouterKey ||
       prev.model !== settings.model ||
@@ -209,6 +245,22 @@ const handlers: Handlers = {
     // Sensitivity change needs no cache purge: probabilities are cached, thresholds apply at read time.
     await broadcast();
     return publicView();
+  },
+  async "block:status"() {
+    return blocklistMeta();
+  },
+  async "block:refresh"() {
+    await setupBlocking(true);
+    return blocklistMeta();
+  },
+  async "block:bypass"({ domain, tabId }) {
+    return { ok: await bypassOnce(domain, tabId) };
+  },
+  async "block:allowDomain"({ domain }) {
+    settings = sanitizeSettings({ ...settings, allowDomains: [...settings.allowDomains, domain] });
+    await chrome.storage.local.set({ [K_SETTINGS]: settings });
+    await setupBlocking(false);
+    return { ok: true };
   },
   async "cache:clear"() {
     scheduler.cache.clear();

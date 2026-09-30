@@ -1,4 +1,5 @@
 /** Surfaces, settings, rules — plus runtime sanitizers so storage contents are always well-typed. */
+import { cleanDomain } from "./blocklist";
 import { PLATFORMS, type PlatformId } from "./platforms";
 
 export type Surface = "comment" | "live_chat" | "video_title";
@@ -28,6 +29,13 @@ export interface Settings {
   remoteConsent: boolean;
   /** Max comments sent to the API per day (cost guard). 0 = unlimited. */
   dailyLimit: number;
+  /** Block navigation to known gambling domains (declarativeNetRequest). */
+  blockSites: boolean;
+  /** Use the community gambling-domain list (downloaded, no user data sent). */
+  blockRemote: boolean;
+  /** User's extra domains to block / never block. */
+  blockDomains: string[];
+  allowDomains: string[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -43,6 +51,10 @@ export const DEFAULT_SETTINGS: Settings = {
   openrouterKey: "",
   remoteConsent: false,
   dailyLimit: 20000,
+  blockSites: true,
+  blockRemote: true,
+  blockDomains: [],
+  allowDomains: [],
 };
 
 /** Per-site and per-page overrides. `true` = force on, `false` = whitelist (off). Absent = inherit. */
@@ -92,6 +104,10 @@ export function sanitizeSettings(raw: unknown): Settings {
       typeof r.dailyLimit === "number" && Number.isFinite(r.dailyLimit)
         ? Math.min(1_000_000, Math.max(0, Math.round(r.dailyLimit)))
         : d.dailyLimit,
+    blockSites: bool(r.blockSites, d.blockSites),
+    blockRemote: bool(r.blockRemote, d.blockRemote),
+    blockDomains: domainList(r.blockDomains),
+    allowDomains: domainList(r.allowDomains),
   };
 }
 
@@ -107,6 +123,17 @@ export function sanitizeRules(raw: unknown): Rules {
   const allow: Rules["allow"] = {};
   for (const [k, v] of Object.entries(obj(r.allow))) if (typeof v === "number") allow[k] = v;
   return { sites, pages, allow };
+}
+
+function domainList(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  const out = new Set<string>();
+  for (const x of v) {
+    const d = typeof x === "string" ? cleanDomain(x) : null;
+    if (d) out.add(d);
+    if (out.size >= 2000) break;
+  }
+  return [...out];
 }
 
 /** Keep the newest `max` entries of a timestamped record. */

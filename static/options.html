@@ -35,6 +35,21 @@
       izin saat kamu mencentangnya, dan izin bisa dicabut kapan saja.</p>
     <div id="platforms"></div>
 
+    <h2>Blokir situs judi</h2>
+    <label class="row"><span>Blokir situs judi online yang dikenal</span><input type="checkbox" name="blockSites" role="switch" /></label>
+    <label class="row"><span>Pakai daftar komunitas (HaGeZi Gambling, diperbarui tiap 12 jam)</span><input type="checkbox" name="blockRemote" /></label>
+    <p class="muted small">Daftar diunduh dari cdn.jsdelivr.net. Tidak ada data tentang kamu yang dikirim; pemblokiran
+      dilakukan browser sendiri, ekstensi tidak melihat situs yang kamu buka. <span id="blockStatus"></span></p>
+    <div class="field">
+      <label for="blockDomains">Domain tambahan yang diblokir (satu per baris)</label>
+      <textarea id="blockDomains" name="blockDomains" rows="3" spellcheck="false" placeholder="slot-gacor88.com"></textarea>
+    </div>
+    <div class="field">
+      <label for="allowDomains">Jangan pernah blokir (satu per baris)</label>
+      <textarea id="allowDomains" name="allowDomains" rows="3" spellcheck="false" placeholder="situs-saya.com"></textarea>
+    </div>
+    <div class="actions"><button type="button" id="blockRefresh">Perbarui daftar sekarang</button></div>
+
     <h2>Area yang dipindai</h2>
     <label class="row"><span>Komentar</span><input type="checkbox" name="surfaces.comment" /></label>
     <label class="row"><span>Live chat</span><input type="checkbox" name="surfaces.live_chat" /></label>

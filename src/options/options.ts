@@ -71,7 +71,10 @@ $("platforms").addEventListener("change", (e) => {
 function fill(v: PublicView): void {
   const s = v.settings;
   renderPlatforms(v);
-  for (const k of ["enabled", "blurSuspicious", "preblurLocal", "remoteConsent"] as const) checkbox(k).checked = s[k];
+  for (const k of ["enabled", "blurSuspicious", "preblurLocal", "remoteConsent", "blockSites", "blockRemote"] as const) checkbox(k).checked = s[k];
+  (field("blockDomains") as unknown as HTMLTextAreaElement).value = s.blockDomains.join("\n");
+  (field("allowDomains") as unknown as HTMLTextAreaElement).value = s.allowDomains.join("\n");
+  void renderBlockStatus();
   for (const k of ["action", "sensitivity", "model"] as const) field(k).value = s[k];
   field("dailyLimit").value = String(s.dailyLimit);
   for (const k of Object.keys(s.surfaces) as Surface[]) checkbox(`surfaces.${k}`).checked = s.surfaces[k];
@@ -85,12 +88,33 @@ function fill(v: PublicView): void {
   $("usage").textContent = `Hari ini: ${v.usage.today.toLocaleString("id-ID")} komentar dikirim`;
 }
 
+const lines = (n: string) =>
+  (field(n) as unknown as HTMLTextAreaElement).value.split(/[\s,]+/).map((x) => x.trim()).filter(Boolean);
+
+async function renderBlockStatus(): Promise<void> {
+  const b = await sendBg("block:status", {});
+  const when = b.updatedAt ? new Date(b.updatedAt).toLocaleString("id-ID") : "belum pernah";
+  $("blockStatus").textContent =
+    `Aktif: ${b.activeCount.toLocaleString("id-ID")} domain · daftar komunitas diperbarui ${when}` +
+    (b.lastError ? ` · gagal terakhir: ${b.lastError}` : "");
+}
+
+$("blockRefresh").addEventListener("click", async () => {
+  $("blockStatus").textContent = "Mengunduh…";
+  await sendBg("block:refresh", {});
+  await renderBlockStatus();
+});
+
 function read(): Partial<Settings> {
   const patch: Partial<Settings> = {
     enabled: checkbox("enabled").checked,
     blurSuspicious: checkbox("blurSuspicious").checked,
     preblurLocal: checkbox("preblurLocal").checked,
     remoteConsent: checkbox("remoteConsent").checked,
+    blockSites: checkbox("blockSites").checked,
+    blockRemote: checkbox("blockRemote").checked,
+    blockDomains: lines("blockDomains"),
+    allowDomains: lines("allowDomains"),
     action: field("action").value as Settings["action"],
     sensitivity: field("sensitivity").value as Settings["sensitivity"],
     model: field("model").value.trim(),
