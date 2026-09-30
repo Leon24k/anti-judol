@@ -71,6 +71,17 @@ const watchdog = setTimeout(async () => {
   process.exit(2);
 }, 120_000);
 
+const NEWS_URL = "https://berita-e2e.example/artikel";
+const NEWS_FIXTURE = `<!doctype html><html><head><title>Harga cabai naik jelang Lebaran</title></head><body>
+<h1>Harga cabai naik jelang Lebaran</h1><p>Harga cabai rawit di pasar naik 20% minggu ini. <a href="/lain">Berita lain</a></p>
+<div id="ad1"><a href="https://agenslots77.com/daftar"><img src="https://cdn-e2e.example/b.gif" width="300" height="100"></a></div>
+<div id="ad2"><img src="/banner-slot-gacor-maxwin.gif" width="300" height="100"></div>
+<p id="seo">Link: <a href="https://spam-e2e.example/">SLOT GACOR HARI INI MAXWIN</a></p>
+<img id="photo" src="/foto-pasar.jpg" alt="Pasar tradisional" width="300" height="100">
+</body></html>`;
+const HACKED_URL = "https://kampus-e2e.example/wp-content/slot/";
+const HACKED_FIXTURE = `<!doctype html><html><head><title>SLOT GACOR MAXWIN Hari Ini - Situs Slot Online Terpercaya</title></head>
+<body><h1>Situs slot gacor terpercaya</h1></body></html>`;
 const X_FIXTURE = `<!doctype html><html><body>
 <article data-testid="tweet"><div data-testid="User-Name"><span>SLOT88</span></div><div data-testid="tweetText">s l o t g4c0r maxwin depo 10rb cek bio</div></article>
 <article data-testid="tweet"><div data-testid="User-Name"><span>Budi</span></div><div data-testid="tweetText">Pagi semua, macet parah di Sudirman</div></article>
@@ -81,6 +92,9 @@ async function serve(page: Page): Promise<void> {
   page.on("request", (r) => {
     const u = r.url();
     if (u.startsWith("https://x.com/")) return void r.respond({ status: 200, contentType: "text/html", body: X_FIXTURE });
+    if (u === NEWS_URL) return void r.respond({ status: 200, contentType: "text/html", body: NEWS_FIXTURE });
+    if (u === HACKED_URL) return void r.respond({ status: 200, contentType: "text/html", body: HACKED_FIXTURE });
+    if (/\.(gif|jpg|png)$/.test(new URL(u).pathname)) return void r.respond({ status: 200, contentType: "image/gif", body: "GIF89a" });
     if (u.startsWith("https://www.youtube.com/watch")) return void r.respond({ status: 200, contentType: "text/html", body: FIXTURE });
     if (u.startsWith("https://www.youtube.com/live_chat")) return void r.respond({ status: 200, contentType: "text/html", body: CHAT });
     return void r.abort();
@@ -239,6 +253,42 @@ try {
     const again = await visit("https://aj-e2e-judi-test.com/");
     check("allowed domain no longer blocked", !again.url.includes("blocked.html"), again.url);
     await send({ type: "settings:update", patch: { blockDomains: [], allowDomains: [] } });
+  }
+
+  // ---------- all-sites scanner (opt-in) ----------
+  {
+    const newsMarks = async () => {
+      const np = await browser!.newPage();
+      await serve(np);
+      await np.goto(NEWS_URL, { waitUntil: "load" });
+      await sleep(900);
+      const out = await np.evaluate(() => ({
+        ad1: document.getElementById("ad1")?.getAttribute("data-aj-web") ?? null,
+        ad2: document.getElementById("ad2")?.getAttribute("data-aj-web") ?? null,
+        seo: document.querySelector("#seo a")?.getAttribute("data-aj-web") ?? null,
+        photo: document.getElementById("photo")?.closest("[data-aj-web]") ? "hidden" : null,
+        ad1Visible: getComputedStyle(document.getElementById("ad1")!).display !== "none",
+        placeholders: document.querySelectorAll(".aj-web-ph").length,
+      }));
+      await np.close();
+      return out;
+    };
+    const off = await newsMarks();
+    check("all-sites scan is off by default", off.ad1 === null && off.placeholders === 0);
+    await send({ type: "settings:update", patch: { webScan: true } });
+    const on = await newsMarks();
+    check("all-sites: judol banner + ad unit hidden", on.ad1 === "banner" && !on.ad1Visible && on.ad2 === "banner", JSON.stringify(on));
+    check("all-sites: SEO spam link marked, normal photo untouched", on.seo === "link" && on.photo === null && on.placeholders === 2, JSON.stringify(on));
+
+    const hp = await browser!.newPage();
+    await serve(hp);
+    await hp.goto(HACKED_URL, { waitUntil: "load" });
+    await sleep(700);
+    check("hacked page shows a warning overlay", !!(await hp.$(".aj-page-warn")));
+    await hp.close();
+    await send({ type: "settings:update", patch: { webScan: false } });
+    const regs3 = await worker!.evaluate(() => chrome.scripting.getRegisteredContentScripts().then((r) => r.map((x) => x.id)));
+    check("disabling all-sites unregisters its script", !regs3.includes("aj-web"), JSON.stringify(regs3));
   }
 
   if (TS_KEY) {

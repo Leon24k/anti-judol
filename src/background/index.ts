@@ -19,8 +19,8 @@ import {
   type Settings,
 } from "../shared/settings";
 import { classifyWithFallback, endpointsFor } from "./jev";
-import { applyBlocking, blocklistMeta, bypassOnce, ensureAlarm, isBlocklistAlarm, refreshRemote } from "./blocking";
-import { grantedPlatforms, syncPlatformScripts } from "./platforms";
+import { applyBlocking, blocklistMeta, bypassOnce, checkHosts, ensureAlarm, isBlocklistAlarm, refreshRemote } from "./blocking";
+import { grantedPlatforms, hasAllSites, syncPlatformScripts, syncWebScript } from "./platforms";
 import { DailyQuota } from "./quota";
 import { Scheduler } from "./scheduler";
 
@@ -34,6 +34,7 @@ const K_USAGE = "aj:usage";
 void chrome.storage.local.setAccessLevel({ accessLevel: "TRUSTED_CONTEXTS" }).catch(() => {});
 
 let settings: Settings = DEFAULT_SETTINGS;
+let webScanActive = false;
 let rules: Rules = DEFAULT_RULES;
 let status: JevStatus = { state: "disabled" };
 const quota = new DailyQuota(() => settings.dailyLimit);
@@ -66,6 +67,7 @@ const ready = (async () => {
   if (Array.isArray(cached)) scheduler.cache.load(cached);
   status = jevConfigured(settings) ? status : { state: "disabled" };
   await syncPlatformScripts(settings.platforms).catch(() => {});
+  webScanActive = await syncWebScript(settings.webScan).catch(() => false);
   void setupBlocking(false);
 })();
 
@@ -94,6 +96,7 @@ const onPermChange = () =>
   void ready
     .then(async () => {
       await syncPlatformScripts(settings.platforms);
+      webScanActive = await syncWebScript(settings.webScan);
       await setupBlocking(false); // warning page vs plain block depends on <all_urls>
     })
     .catch(() => {});
@@ -159,6 +162,7 @@ function contentConfig(pageKey: string, siteKey: string): ContentConfig {
     preblurLocal: settings.preblurLocal,
     surfaces: settings.surfaces,
     platforms: settings.platforms,
+    webScan: webScanActive,
     jevAvailable: jevConfigured(settings) && status.state !== "unauthorized",
     allowKeys: Object.keys(rules.allow),
   };
@@ -213,7 +217,7 @@ const handlers: Handlers = {
     };
   },
   async "settings:get"() {
-    return { ...publicView(), status, grantedPlatforms: [...(await grantedPlatforms())] };
+    return { ...publicView(), status, grantedPlatforms: [...(await grantedPlatforms())], allSites: await hasAllSites() };
   },
   async "settings:update"({ patch }) {
     const prev = settings;
@@ -225,6 +229,7 @@ const handlers: Handlers = {
     });
     await chrome.storage.local.set({ [K_SETTINGS]: settings });
     await syncPlatformScripts(settings.platforms).catch(() => {});
+    webScanActive = await syncWebScript(settings.webScan).catch(() => false);
     if (
       prev.blockSites !== settings.blockSites ||
       prev.blockRemote !== settings.blockRemote ||
@@ -245,6 +250,11 @@ const handlers: Handlers = {
     // Sensitivity change needs no cache purge: probabilities are cached, thresholds apply at read time.
     await broadcast();
     return publicView();
+  },
+  async "block:check"({ hosts }) {
+    if (!Array.isArray(hosts)) return { blocked: [] };
+    const clean = hosts.filter((h): h is string => typeof h === "string" && h.length < 254);
+    return { blocked: await checkHosts(blockCfg(), clean) };
   },
   async "block:status"() {
     return blocklistMeta();

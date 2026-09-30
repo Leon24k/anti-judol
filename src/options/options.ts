@@ -15,6 +15,27 @@ function field(name: string): HTMLInputElement | HTMLSelectElement {
 const checkbox = (n: string) => field(n) as HTMLInputElement;
 
 let granted = new Set<PlatformId>();
+let allSites = false;
+const ALL = { origins: ["<all_urls>"] };
+
+$("webScan").addEventListener("change", (e) => {
+  const cb = e.target as HTMLInputElement;
+  const on = cb.checked;
+  // permissions.request must be called synchronously in the click handler.
+  const ask = on ? chrome.permissions.request(ALL) : Promise.resolve(true);
+  void ask.then(async (ok) => {
+    if (!ok) {
+      cb.checked = false;
+      flash("saved", "Izin semua situs ditolak");
+      return;
+    }
+    if (!on) await chrome.permissions.remove(ALL).catch(() => false);
+    fill(await sendBg("settings:update", { patch: { webScan: on } }));
+    allSites = (await sendBg("settings:get", {})).allSites;
+    ($("webScan") as HTMLInputElement).checked = on && allSites;
+    flash("saved", on ? "Pemindaian semua situs aktif ✓" : "Pemindaian semua situs dimatikan");
+  });
+});
 
 function renderPlatforms(v: PublicView): void {
   const box = $("platforms");
@@ -71,6 +92,7 @@ $("platforms").addEventListener("change", (e) => {
 function fill(v: PublicView): void {
   const s = v.settings;
   renderPlatforms(v);
+  ($("webScan") as HTMLInputElement).checked = s.webScan && allSites;
   for (const k of ["enabled", "blurSuspicious", "preblurLocal", "remoteConsent", "blockSites", "blockRemote"] as const) checkbox(k).checked = s[k];
   (field("blockDomains") as unknown as HTMLTextAreaElement).value = s.blockDomains.join("\n");
   (field("allowDomains") as unknown as HTMLTextAreaElement).value = s.allowDomains.join("\n");
@@ -177,5 +199,6 @@ $("clearCache").addEventListener("click", async () => {
 
 void sendBg("settings:get", {}).then((v) => {
   granted = new Set(v.grantedPlatforms);
+  allSites = v.allSites;
   fill(v);
 });

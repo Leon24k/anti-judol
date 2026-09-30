@@ -29,6 +29,8 @@ export interface Settings {
   remoteConsent: boolean;
   /** Max comments sent to the API per day (cost guard). 0 = unlimited. */
   dailyLimit: number;
+  /** Opt-in: hide gambling banners/links on every website (needs <all_urls>). Local only. */
+  webScan: boolean;
   /** Block navigation to known gambling domains (declarativeNetRequest). */
   blockSites: boolean;
   /** Use the community gambling-domain list (downloaded, no user data sent). */
@@ -51,6 +53,7 @@ export const DEFAULT_SETTINGS: Settings = {
   openrouterKey: "",
   remoteConsent: false,
   dailyLimit: 20000,
+  webScan: false,
   blockSites: true,
   blockRemote: true,
   blockDomains: [],
@@ -104,6 +107,7 @@ export function sanitizeSettings(raw: unknown): Settings {
       typeof r.dailyLimit === "number" && Number.isFinite(r.dailyLimit)
         ? Math.min(1_000_000, Math.max(0, Math.round(r.dailyLimit)))
         : d.dailyLimit,
+    webScan: bool(r.webScan, d.webScan),
     blockSites: bool(r.blockSites, d.blockSites),
     blockRemote: bool(r.blockRemote, d.blockRemote),
     blockDomains: domainList(r.blockDomains),

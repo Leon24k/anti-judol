@@ -86,6 +86,29 @@ export function isBlocklistAlarm(a: chrome.alarms.Alarm): boolean {
   return a.name === ALARM;
 }
 
+/** Membership test for the all-sites scanner (suffix match, like DNR requestDomains). */
+let lookup: Set<string> | null = null;
+let lookupKey = "";
+export async function checkHosts(cfg: BlockConfig, hosts: readonly string[]): Promise<string[]> {
+  const key = `${cfg.remote}|${cfg.block.join()}|${cfg.allow.join()}|${meta.updatedAt}`;
+  if (!lookup || key !== lookupKey) {
+    lookup = new Set(mergeDomains(cfg.remote ? await loadRemote() : [], cfg.block, cfg.allow));
+    lookupKey = key;
+  }
+  const out: string[] = [];
+  for (const h of hosts.slice(0, 500)) {
+    let d = h;
+    while (d.includes(".")) {
+      if (lookup.has(d)) {
+        out.push(h);
+        break;
+      }
+      d = d.slice(d.indexOf(".") + 1);
+    }
+  }
+  return out;
+}
+
 /** "Open once": allow this domain in this tab only, until the browser restarts. */
 export async function bypassOnce(domainInput: string, tabId: number): Promise<boolean> {
   const domain = cleanDomain(domainInput);

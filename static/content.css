@@ -51,3 +51,27 @@ html[data-aj-reveal-all] .aj-badge { opacity: 0.65; }
 @media (prefers-reduced-motion: reduce) {
   [data-aj-state] > * { transition: none !important; }
 }
+
+/* ---------- all-sites scanner ---------- */
+html:not([data-aj-reveal-all]) [data-aj-web="banner"]:not([data-aj-web-revealed]) { display: none !important; }
+html:not([data-aj-reveal-all]) a[data-aj-web="link"]:not([data-aj-web-revealed]) {
+  filter: blur(4px); cursor: pointer; text-decoration: line-through;
+}
+.aj-web-ph {
+  all: initial; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin: 4px 0; padding: 6px 10px; border: 1px dashed #b71c1c; border-radius: 8px;
+  background: rgba(183, 28, 28, 0.08); color: #b71c1c; font: 500 12px/1.5 Roboto, Arial, sans-serif;
+}
+html[data-aj-reveal-all] .aj-web-ph { opacity: 0.6; }
+.aj-web-ph button, .aj-page-warn button {
+  all: unset; cursor: pointer; text-decoration: underline; font: inherit; color: inherit;
+}
+.aj-web-ph button:focus-visible, .aj-page-warn button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.aj-page-warn {
+  all: initial; position: fixed; inset: 0; z-index: 2147483647; display: grid; place-items: center;
+  background: rgba(15, 15, 15, 0.92); font: 14px/1.5 Roboto, Arial, sans-serif; color: #fff;
+}
+.aj-page-warn > div { max-width: 480px; margin: 16px; padding: 24px; border-radius: 14px; background: #1f1f1f; border-top: 6px solid #c62828; display: grid; gap: 10px; }
+.aj-page-warn strong { font-size: 18px; }
+.aj-page-warn p { margin: 0; color: #ddd; }
+.aj-page-warn button { padding: 8px 0; color: #ff8a80; }

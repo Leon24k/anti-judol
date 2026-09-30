@@ -40,6 +40,8 @@ export interface ContentConfig {
   surfaces: Record<Surface, boolean>;
   /** Which platforms the user enabled (content script checks its own). */
   platforms: Record<PlatformId, boolean>;
+  /** All-sites ad/link scanner enabled (and <all_urls> granted). */
+  webScan: boolean;
   jevAvailable: boolean;
   allowKeys: string[];
 }
@@ -83,13 +85,15 @@ export interface BgMessages {
   "rules:page": { req: { pageKey: string; on: boolean | null }; res: { ok: true } };
   "rules:clearAllow": { req: Record<string, never>; res: { ok: true } };
   "rules:get": { req: { pageKey: string; siteKey: string }; res: { site: boolean | null; page: boolean | null; allowCount: number; global: boolean } };
-  "settings:get": { req: Record<string, never>; res: PublicView & { status: JevStatus; grantedPlatforms: PlatformId[] } };
+  "settings:get": { req: Record<string, never>; res: PublicView & { status: JevStatus; grantedPlatforms: PlatformId[]; allSites: boolean } };
   "settings:update": { req: { patch: Partial<Settings> }; res: PublicView };
   "cache:clear": { req: Record<string, never>; res: { ok: true } };
   "block:status": { req: Record<string, never>; res: BlocklistStatus };
   "block:refresh": { req: Record<string, never>; res: BlocklistStatus };
   "block:bypass": { req: { domain: string; tabId: number }; res: { ok: boolean } };
   "block:allowDomain": { req: { domain: string }; res: { ok: true } };
+  /** Content scripts ask which hosts on the page are known gambling domains (no network). */
+  "block:check": { req: { hosts: string[] }; res: { blocked: string[] } };
   "jev:test": { req: Record<string, never>; res: { ok: boolean; latencyMs: number; detail: string } };
 }
 export type BgType = keyof BgMessages;

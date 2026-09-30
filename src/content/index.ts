@@ -1,7 +1,9 @@
 /** Content-script entry: wires the Scanner to the service worker, SPA navigation, and popup messages. */
 import { sendBg, type ContentConfig, type PageInfo, type TabRequest } from "../shared/messages";
 import { pageKeyOf, siteKeyOf } from "../shared/page";
+import { platformForHost } from "../shared/platforms";
 import { Scanner } from "./scanner";
+import { WebScanner } from "./web";
 
 const isTop = window.top === window;
 
@@ -23,10 +25,15 @@ function pageUrl(): string {
 let pageKey = pageKeyOf(pageUrl());
 let siteKey = siteKeyOf(pageUrl());
 
-const scanner = new Scanner(document, {
-  classify: async (items) => (await sendBg("classify", { items })).results,
-  onAllow: (key) => void sendBg("rule:allow", { key }).catch(() => {}),
-});
+// Known platform (YouTube, X, …) → comment scanner. Any other site (all-sites mode) → ad/link scanner.
+const scanner = platformForHost(location.hostname)
+  ? new Scanner(document, {
+      classify: async (items) => (await sendBg("classify", { items })).results,
+      onAllow: (key) => void sendBg("rule:allow", { key }).catch(() => {}),
+    })
+  : new WebScanner(document, {
+      checkHosts: async (hosts) => (await sendBg("block:check", { hosts })).blocked,
+    });
 
 let refreshSeq = 0;
 async function refresh(): Promise<void> {
@@ -76,4 +83,4 @@ chrome.runtime.onMessage.addListener((msg: TabRequest, sender, sendResponse) => 
 
 void refresh();
 
-if (__DEV__) (globalThis as { __aj?: Scanner }).__aj = scanner;
+if (__DEV__) (globalThis as { __aj?: unknown }).__aj = scanner;
