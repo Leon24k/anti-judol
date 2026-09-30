@@ -1,0 +1,53 @@
+/* Anti-Judol Shield — visuals are driven purely by data-attributes set by the content script. */
+[data-aj-state] { position: relative; }
+
+html:not([data-aj-reveal-all]) [data-aj-state][data-aj-action="blur"]:not([data-aj-revealed]) > :not(.aj-badge),
+html:not([data-aj-reveal-all]) [data-aj-state][data-aj-action="hide"]:not([data-aj-revealed]) > :not(.aj-badge) {
+  filter: blur(8px);
+  user-select: none;
+  transition: filter 120ms ease-out;
+  cursor: pointer;
+}
+
+html:not([data-aj-reveal-all]) [data-aj-state="pending"]:not([data-aj-revealed]) > :not(.aj-badge) {
+  filter: blur(4px);
+}
+
+html:not([data-aj-reveal-all]) [data-aj-action="hide"][data-aj-state="judol"]:not([data-aj-revealed]),
+html:not([data-aj-reveal-all]) [data-aj-action="hide"][data-aj-state="suspicious"]:not([data-aj-revealed]) {
+  display: none !important;
+}
+
+.aj-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #b71c1c;
+  color: #fff;
+  font: 500 11px/1.6 Roboto, Arial, sans-serif;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+}
+[data-aj-state="suspicious"] > .aj-badge { background: #bf5a00; }
+[data-aj-state="pending"] > .aj-badge { background: #455a64; }
+[data-aj-state="pending"] > .aj-badge button[data-aj-act="allow"] { display: none; }
+html[data-aj-reveal-all] .aj-badge { opacity: 0.65; }
+
+.aj-badge button {
+  all: unset;
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+  color: inherit;
+}
+.aj-badge button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; border-radius: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-aj-state] > * { transition: none !important; }
+}

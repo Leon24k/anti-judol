@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>Anti-Judol Shield</title>
+  <link rel="stylesheet" href="ui.css" />
+</head>
+<body class="popup">
+  <header>
+    <h1>🛡️ Anti-Judol</h1>
+    <span id="jev" class="pill" aria-live="polite">…</span>
+  </header>
+
+  <section id="unsupported" hidden>
+    <p class="muted">Halaman ini tidak dipindai. Buka YouTube untuk memakai Anti-Judol.</p>
+  </section>
+
+  <section id="page" hidden>
+    <p class="muted small" id="pageKey"></p>
+    <dl class="stats">
+      <div><dt>Dipindai</dt><dd id="sScanned">0</dd></div>
+      <div><dt>Judol</dt><dd id="sJudol">0</dd></div>
+      <div><dt>Spam</dt><dd id="sSusp">0</dd></div>
+    </dl>
+
+    <label class="row"><span>Aktif di halaman ini</span><input type="checkbox" id="pageOn" role="switch" /></label>
+    <p class="muted small" id="reason"></p>
+    <label class="row"><span>Tampilkan semua (sementara)</span><input type="checkbox" id="revealAll" role="switch" /></label>
+    <label class="row"><span>Aktif di situs <b id="siteName"></b></span><input type="checkbox" id="siteOn" role="switch" /></label>
+    <button type="button" id="resetPage" class="link">Pakai pengaturan default untuk halaman ini</button>
+  </section>
+
+  <hr />
+  <label class="row"><span>Perlindungan global</span><input type="checkbox" id="globalOn" role="switch" /></label>
+  <footer>
+    <span class="muted small" id="allowCount"></span>
+    <button type="button" id="openOptions" class="link">Pengaturan</button>
+  </footer>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

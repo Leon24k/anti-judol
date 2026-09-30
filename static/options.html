@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Anti-Judol Shield — Pengaturan</title>
+  <link rel="stylesheet" href="ui.css" />
+</head>
+<body class="options">
+  <h1>🛡️ Anti-Judol Shield — Pengaturan</h1>
+
+  <form id="form" autocomplete="off">
+    <h2>Perlindungan</h2>
+    <label class="row"><span>Aktif secara global</span><input type="checkbox" name="enabled" role="switch" /></label>
+    <div class="field">
+      <label for="action">Tindakan untuk konten judol</label>
+      <select id="action" name="action">
+        <option value="blur">Blur + badge</option>
+        <option value="hide">Sembunyikan sepenuhnya</option>
+        <option value="badge">Badge saja</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="sensitivity">Sensitivitas</label>
+      <select id="sensitivity" name="sensitivity">
+        <option value="low">Rendah (lebih sedikit false positive)</option>
+        <option value="normal">Normal</option>
+        <option value="high">Tinggi (lebih agresif)</option>
+      </select>
+    </div>
+    <label class="row"><span>Blur juga spam mencurigakan</span><input type="checkbox" name="blurSuspicious" /></label>
+    <label class="row"><span>Blur sementara saat Jev masih memeriksa</span><input type="checkbox" name="preblurLocal" /></label>
+
+    <h2>Area yang dipindai</h2>
+    <label class="row"><span>Komentar</span><input type="checkbox" name="surfaces.comment" /></label>
+    <label class="row"><span>Live chat</span><input type="checkbox" name="surfaces.live_chat" /></label>
+    <label class="row"><span>Judul video</span><input type="checkbox" name="surfaces.video_title" /></label>
+
+    <h2>Jev AI (TypeSafe)</h2>
+    <p class="muted small">Tanpa API key, ekstensi tetap bekerja dengan filter lokal. Key hanya disimpan di perangkat ini
+      (chrome.storage.local) dan hanya dikirim ke endpoint di bawah.</p>
+    <div class="field">
+      <label for="apiKey">TypeSafe API key</label>
+      <input type="password" id="apiKey" name="apiKey" spellcheck="false" />
+    </div>
+    <div class="field">
+      <label for="endpoint">Base URL (opsional, default https://api.typesafe.ai)</label>
+      <input type="text" id="endpoint" name="endpoint" placeholder="https://api.typesafe.ai" spellcheck="false" />
+    </div>
+    <div class="field">
+      <label for="model">Model (opsional, default jev-latest)</label>
+      <input type="text" id="model" name="model" placeholder="jev-latest" spellcheck="false" />
+    </div>
+    <div class="field">
+      <label for="openrouterKey">OpenRouter API key — fallback opsional (berbayar ±$0.042 / 1 juta token input)</label>
+      <input type="password" id="openrouterKey" name="openrouterKey" spellcheck="false" />
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="primary">Simpan</button>
+      <button type="button" id="test">Tes koneksi Jev</button>
+      <span id="saved" aria-live="polite"></span>
+      <span id="testResult" aria-live="polite"></span>
+    </div>
+
+    <h2>Data</h2>
+    <div class="actions">
+      <button type="button" id="clearAllow">Hapus whitelist komentar</button>
+      <button type="button" id="clearCache">Hapus cache klasifikasi</button>
+      <span id="dataResult" class="muted small" aria-live="polite"></span>
+    </div>
+  </form>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

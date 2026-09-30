@@ -1,0 +1,209 @@
+/**
+ * Service worker: the single writer for settings/rules, owner of the API key, and the
+ * shared Jev batching scheduler for all tabs.
+ */
+import type { BgMessages, BgRequest, BgType, ContentConfig, JevStatus } from "../shared/messages";
+import { PRIVILEGED } from "../shared/messages";
+import { resolveActive } from "../shared/page";
+import {
+  DEFAULT_RULES,
+  DEFAULT_SETTINGS,
+  MAX_ALLOW,
+  MAX_PAGE_RULES,
+  jevConfigured,
+  pruneNewest,
+  sanitizeRules,
+  sanitizeSettings,
+  type Rules,
+  type Settings,
+} from "../shared/settings";
+import { classifyWithFallback, endpointsFor } from "./jev";
+import { Scheduler } from "./scheduler";
+
+const K_SETTINGS = "aj:settings";
+const K_RULES = "aj:rules";
+const K_CACHE = "aj:cache";
+
+let settings: Settings = DEFAULT_SETTINGS;
+let rules: Rules = DEFAULT_RULES;
+let status: JevStatus = { state: "disabled" };
+
+const scheduler = new Scheduler({
+  send: (items) => classifyWithFallback(items, endpointsFor(settings)),
+  available: () => jevConfigured(settings),
+  sensitivity: () => settings.sensitivity,
+  onStatus: (s) => {
+    status = s;
+    persistCacheSoon();
+  },
+});
+
+// ---------- state load / persist ----------
+
+const ready = (async () => {
+  const [local, session] = await Promise.all([
+    chrome.storage.local.get([K_SETTINGS, K_RULES]),
+    chrome.storage.session.get(K_CACHE).catch(() => ({}) as Record<string, unknown>),
+  ]);
+  settings = sanitizeSettings(local[K_SETTINGS]);
+  rules = sanitizeRules(local[K_RULES]);
+  const cached = session[K_CACHE];
+  if (Array.isArray(cached)) scheduler.cache.load(cached);
+  status = jevConfigured(settings) ? status : { state: "disabled" };
+})();
+
+let cacheTimer: ReturnType<typeof setTimeout> | undefined;
+function persistCacheSoon(): void {
+  if (cacheTimer !== undefined) return;
+  cacheTimer = setTimeout(() => {
+    cacheTimer = undefined;
+    // Session storage survives service-worker restarts but not browser restarts.
+    void chrome.storage.session.set({ [K_CACHE]: scheduler.cache.dump() }).catch(() => {});
+  }, 2000);
+}
+
+async function saveRules(): Promise<void> {
+  rules = {
+    sites: rules.sites,
+    pages: pruneNewest(rules.pages, MAX_PAGE_RULES, (v) => v.at),
+    allow: pruneNewest(rules.allow, MAX_ALLOW, (v) => v),
+  };
+  await chrome.storage.local.set({ [K_RULES]: rules });
+  await broadcast();
+}
+
+async function broadcast(): Promise<void> {
+  const tabs = await chrome.tabs.query({});
+  await Promise.all(
+    tabs.map((t) =>
+      t.id === undefined ? undefined : chrome.tabs.sendMessage(t.id, { type: "config:changed" }).catch(() => {}),
+    ),
+  );
+}
+
+function contentConfig(pageKey: string, siteKey: string): ContentConfig {
+  const { active, reason } = resolveActive(settings, rules, siteKey, pageKey);
+  return {
+    active,
+    reason,
+    action: settings.action,
+    sensitivity: settings.sensitivity,
+    blurSuspicious: settings.blurSuspicious,
+    preblurLocal: settings.preblurLocal,
+    surfaces: settings.surfaces,
+    jevAvailable: jevConfigured(settings) && status.state !== "unauthorized",
+    allowKeys: Object.keys(rules.allow),
+  };
+}
+
+// ---------- handlers ----------
+
+type Handlers = { [T in BgType]: (req: BgRequest<T>) => Promise<BgMessages[T]["res"]> };
+
+const handlers: Handlers = {
+  async classify({ items }) {
+    const safe = items.slice(0, 200).filter((i) => typeof i.key === "string" && typeof i.text === "string");
+    const allowed = safe.filter((i) => rules.allow[i.key] !== undefined);
+    const rest = safe.filter((i) => rules.allow[i.key] === undefined);
+    const results = await scheduler.classify(
+      rest.map((i) => ({ ...i, text: i.text.slice(0, 500), author: i.author?.slice(0, 100) })),
+    );
+    for (const i of allowed) results.push({ key: i.key, verdict: "SAFE", source: "user", pJudol: 0 });
+    return { results };
+  },
+  async "state:get"({ pageKey, siteKey }) {
+    return contentConfig(pageKey, siteKey);
+  },
+  async "rule:allow"({ key }) {
+    rules.allow[key] = Date.now();
+    await saveRules();
+    return { ok: true };
+  },
+  async "rules:site"({ siteKey, on }) {
+    if (on === null) delete rules.sites[siteKey];
+    else rules.sites[siteKey] = on;
+    await saveRules();
+    return { ok: true };
+  },
+  async "rules:page"({ pageKey, on }) {
+    if (on === null) delete rules.pages[pageKey];
+    else rules.pages[pageKey] = { on, at: Date.now() };
+    await saveRules();
+    return { ok: true };
+  },
+  async "rules:clearAllow"() {
+    rules.allow = {};
+    await saveRules();
+    return { ok: true };
+  },
+  async "rules:get"({ pageKey, siteKey }) {
+    return {
+      site: rules.sites[siteKey] ?? null,
+      page: rules.pages[pageKey]?.on ?? null,
+      allowCount: Object.keys(rules.allow).length,
+      global: settings.enabled,
+    };
+  },
+  async "settings:get"() {
+    return { settings, status };
+  },
+  async "settings:update"({ patch }) {
+    const prev = settings;
+    settings = sanitizeSettings({ ...settings, ...patch, surfaces: { ...settings.surfaces, ...patch.surfaces } });
+    await chrome.storage.local.set({ [K_SETTINGS]: settings });
+    if (prev.apiKey !== settings.apiKey || prev.openrouterKey !== settings.openrouterKey || prev.endpoint !== settings.endpoint || prev.model !== settings.model) {
+      scheduler.reset();
+      scheduler.cache.clear();
+      status = { state: "disabled" };
+    }
+    // Sensitivity change needs no cache purge: probabilities are cached, thresholds apply at read time.
+    await broadcast();
+    return { settings };
+  },
+  async "cache:clear"() {
+    scheduler.cache.clear();
+    await chrome.storage.session.remove(K_CACHE).catch(() => {});
+    return { ok: true };
+  },
+  async "jev:test"() {
+    if (!jevConfigured(settings)) return { ok: false, latencyMs: 0, detail: "API key belum diisi." };
+    const t0 = performance.now();
+    try {
+      const [p] = await classifyWithFallback(
+        [{ key: "test", surface: "comment", text: "d4ftar sekarang di GACOR88 dijamin maxwin, depo 10rb" }],
+        endpointsFor(settings),
+      );
+      const latencyMs = Math.round(performance.now() - t0);
+      status = { state: "ok", latencyMs };
+      scheduler.reset();
+      return { ok: !!p, latencyMs, detail: p ? `P(JUDOL_PROMO)=${p.JUDOL_PROMO.toFixed(2)}` : "Respons tidak valid" };
+    } catch (e) {
+      const latencyMs = Math.round(performance.now() - t0);
+      return { ok: false, latencyMs, detail: (e as Error).message };
+    }
+  },
+};
+
+// ---------- router ----------
+
+const EXT_ORIGIN = chrome.runtime.getURL("");
+
+chrome.runtime.onMessage.addListener((msg: unknown, sender, sendResponse) => {
+  if (sender.id !== chrome.runtime.id || !msg || typeof msg !== "object") return false;
+  const type = (msg as { type?: unknown }).type as BgType;
+  const handler = handlers[type] as ((r: unknown) => Promise<unknown>) | undefined;
+  if (!handler) return false;
+  // Settings/key/rules management only from our own extension pages, never from content scripts.
+  if (PRIVILEGED.has(type) && !sender.url?.startsWith(EXT_ORIGIN)) {
+    sendResponse({ error: "forbidden" });
+    return false;
+  }
+  ready
+    .then(() => handler(msg))
+    .then(sendResponse, (e: unknown) => sendResponse({ error: String((e as Error)?.message ?? e) }));
+  return true; // async response
+});
+
+chrome.runtime.onInstalled.addListener((d) => {
+  if (d.reason === "install") void chrome.runtime.openOptionsPage();
+});

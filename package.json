@@ -1,0 +1,20 @@
+{
+  "name": "anti-judol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MV3 browser extension that blurs online-gambling (judol) promotion in YouTube comments, titles, and live chat using the Jev System One classifier.",
+  "type": "module",
+  "scripts": {
+    "build": "bun run build.ts",
+    "watch": "bun run build.ts --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "check": "bun run typecheck && bun test && bun run build"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "20.14.5",
+    "@types/bun": "1.4.2",
+    "@types/chrome": "0.3.4",
+    "typescript": "7.0.2"
+  }
+}

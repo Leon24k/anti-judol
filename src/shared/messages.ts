@@ -1,0 +1,107 @@
+/** Typed message contracts between content script, popup/options, and the service worker. */
+import type { ActiveReason } from "./page";
+import type { Action, Sensitivity, Settings, Surface } from "./settings";
+import type { Verdict, VerdictSource } from "./verdict";
+
+export interface ClassifyItem {
+  key: string;
+  surface: Surface;
+  text: string;
+  author?: string | undefined;
+  localScore: number;
+  /** Higher = sooner. Live chat gets a boost since it scrolls away quickly. */
+  priority: number;
+}
+
+export interface ClassifyResult {
+  key: string;
+  verdict: Verdict;
+  source: VerdictSource;
+  /** P(JUDOL_PROMO) from Jev, or the local score for local verdicts. */
+  pJudol: number;
+}
+
+export type JevStatus =
+  | { state: "disabled" }
+  | { state: "ok"; latencyMs: number }
+  | { state: "error"; message: string; at: number }
+  | { state: "unauthorized"; at: number };
+
+/** Non-secret config the content script needs (never includes the API key). */
+export interface ContentConfig {
+  active: boolean;
+  reason: ActiveReason;
+  action: Action;
+  sensitivity: Sensitivity;
+  blurSuspicious: boolean;
+  preblurLocal: boolean;
+  surfaces: Record<Surface, boolean>;
+  jevAvailable: boolean;
+  allowKeys: string[];
+}
+
+export interface PageStats {
+  scanned: number;
+  judol: number;
+  suspicious: number;
+}
+
+export interface PageInfo {
+  pageKey: string;
+  siteKey: string;
+  stats: PageStats;
+  revealed: boolean;
+}
+
+/** Messages handled by the service worker: request → response. */
+export interface BgMessages {
+  classify: { req: { items: ClassifyItem[] }; res: { results: ClassifyResult[] } };
+  "state:get": { req: { pageKey: string; siteKey: string }; res: ContentConfig };
+  "rule:allow": { req: { key: string }; res: { ok: true } };
+  "rules:site": { req: { siteKey: string; on: boolean | null }; res: { ok: true } };
+  "rules:page": { req: { pageKey: string; on: boolean | null }; res: { ok: true } };
+  "rules:clearAllow": { req: Record<string, never>; res: { ok: true } };
+  "rules:get": { req: { pageKey: string; siteKey: string }; res: { site: boolean | null; page: boolean | null; allowCount: number; global: boolean } };
+  "settings:get": { req: Record<string, never>; res: { settings: Settings; status: JevStatus } };
+  "settings:update": { req: { patch: Partial<Settings> }; res: { settings: Settings } };
+  "cache:clear": { req: Record<string, never>; res: { ok: true } };
+  "jev:test": { req: Record<string, never>; res: { ok: boolean; latencyMs: number; detail: string } };
+}
+export type BgType = keyof BgMessages;
+export type BgRequest<T extends BgType = BgType> = { type: T } & BgMessages[T]["req"];
+
+/** Only extension pages (popup/options) may send these. */
+export const PRIVILEGED: ReadonlySet<BgType> = new Set<BgType>([
+  "settings:get",
+  "settings:update",
+  "rules:site",
+  "rules:page",
+  "rules:clearAllow",
+  "cache:clear",
+  "jev:test",
+]);
+
+/** Messages handled by content scripts (sent via chrome.tabs.sendMessage). */
+export interface TabMessages {
+  "config:changed": { req: Record<string, never>; res: void };
+  "page:info": { req: Record<string, never>; res: PageInfo };
+  "page:reveal": { req: { revealed: boolean }; res: { ok: true } };
+}
+export type TabType = keyof TabMessages;
+export type TabRequest<T extends TabType = TabType> = { type: T } & TabMessages[T]["req"];
+
+export async function sendBg<T extends BgType>(type: T, req: BgMessages[T]["req"]): Promise<BgMessages[T]["res"]> {
+  const res: unknown = await chrome.runtime.sendMessage({ type, ...req });
+  if (res && typeof res === "object" && "error" in res) throw new Error(String((res as { error: unknown }).error));
+  return res as BgMessages[T]["res"];
+}
+
+export async function sendTab<T extends TabType>(
+  tabId: number,
+  type: T,
+  req: TabMessages[T]["req"],
+  frameId?: number,
+): Promise<TabMessages[T]["res"]> {
+  const opts = frameId === undefined ? {} : { frameId };
+  return (await chrome.tabs.sendMessage(tabId, { type, ...req }, opts)) as TabMessages[T]["res"];
+}
