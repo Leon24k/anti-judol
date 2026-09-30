@@ -2,6 +2,7 @@
 import { sendBg, type ContentConfig, type PageInfo, type TabRequest } from "../shared/messages";
 import { pageKeyOf, siteKeyOf } from "../shared/page";
 import { platformForHost } from "../shared/platforms";
+import { ADUAN_URL, reportText } from "../shared/report";
 import { Scanner } from "./scanner";
 import { WebScanner } from "./web";
 
@@ -30,6 +31,11 @@ const scanner = platformForHost(location.hostname)
   ? new Scanner(document, {
       classify: async (items) => (await sendBg("classify", { items })).results,
       onAllow: (key) => void sendBg("rule:allow", { key }).catch(() => {}),
+      onReport: ({ text, author, where }) => {
+        const evidence = author ? `${author}: ${text}` : text;
+        void navigator.clipboard?.writeText(reportText({ url: pageUrl(), evidence, where })).catch(() => {});
+        window.open(ADUAN_URL, "_blank", "noopener");
+      },
     })
   : new WebScanner(document, {
       checkHosts: async (hosts) => (await sendBg("block:check", { hosts })).blocked,
@@ -69,7 +75,7 @@ chrome.runtime.onMessage.addListener((msg: TabRequest, sender, sendResponse) => 
       return false;
     case "page:info": {
       if (!isTop) return false; // only the top frame answers
-      const info: PageInfo = { pageKey, siteKey, stats: scanner.stats, revealed: scanner.revealed };
+      const info: PageInfo = { url: pageUrl(), pageKey, siteKey, stats: scanner.stats, revealed: scanner.revealed };
       sendResponse(info);
       return false;
     }

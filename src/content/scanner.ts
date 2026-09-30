@@ -14,6 +14,7 @@ import { hashKey } from "../shared/hash";
 import { scoreLocal } from "../shared/heuristics";
 import type { ClassifyItem, ClassifyResult, ContentConfig, PageStats } from "../shared/messages";
 import { normalize } from "../shared/normalize";
+import { platformById } from "../shared/platforms";
 import type { Surface } from "../shared/settings";
 import { Verdict } from "../shared/verdict";
 import { adapterFor, adaptersForHost, extract, type AdapterSet } from "./adapters";
@@ -28,6 +29,9 @@ const PRIORITY: Record<Surface, number> = { live_chat: 3, video_title: 2, commen
 
 interface Track {
   raw: string;
+  /** Original (un-normalized) text + author, as the user saw it. For reports. */
+  origText: string;
+  origAuthor: string;
   key: string;
   surface: Surface;
   score: number;
@@ -38,6 +42,8 @@ interface Track {
 export interface ScannerDeps {
   classify(items: ClassifyItem[]): Promise<ClassifyResult[]>;
   onAllow(key: string): void;
+  /** Copy a ready-to-paste report and open aduankonten.id. */
+  onReport?(r: { text: string; author: string; where: string }): void;
   now?(): number;
   /** Adapter set for this document; defaults to one derived from location.hostname. */
   adapters?: AdapterSet | null;
@@ -105,7 +111,16 @@ export class Scanner {
     if (!this.mo) {
       this.mo = new MutationObserver((records) => this.onMutations(records));
       this.mo.observe(this.doc.documentElement, { childList: true, subtree: true, characterData: true });
-      this.uninstall = installInteractions(this.doc, (key, el) => this.allowKey(key, el));
+      this.uninstall = installInteractions(this.doc, {
+        onAllow: (key, el) => this.allowKey(key, el),
+        onReport: (el) => {
+          const tr = this.tracked.get(el);
+          if (!tr) return;
+          const name = this.set ? platformById(this.set.platform).name : "situs";
+          const kind = tr.surface === "live_chat" ? "live chat" : tr.surface === "video_title" ? "judul" : "komentar";
+          this.d.onReport?.({ text: tr.origText, author: tr.origAuthor, where: `${kind} ${name}` });
+        },
+      });
       this.sweepTimer = setInterval(() => this.sweep(), 15_000);
     }
     this.io?.disconnect();
@@ -220,7 +235,7 @@ export class Scanner {
     const na = author ? normalize(author) : null;
     const score = Math.max(scoreLocal(n).score, na ? scoreLocal(na).score * 0.9 : 0);
     const key = hashKey(`${n.key}|${na?.key ?? ""}`);
-    const tr: Track = { raw, key, surface: a.surface, score, text: n.display, author: na?.display ?? "" };
+    const tr: Track = { raw, origText: text, origAuthor: author, key, surface: a.surface, score, text: n.display, author: na?.display ?? "" };
     this.tracked.set(el, tr);
     this.seen.add(key);
     this.decide(el, tr);

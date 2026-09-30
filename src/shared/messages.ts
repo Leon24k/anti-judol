@@ -53,6 +53,8 @@ export interface PageStats {
 }
 
 export interface PageInfo {
+  /** Page URL (only sent to our own popup, used for the report text). */
+  url: string;
   pageKey: string;
   siteKey: string;
   stats: PageStats;

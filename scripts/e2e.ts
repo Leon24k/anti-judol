@@ -168,6 +168,22 @@ try {
   st = await states(page);
   check("'Bukan judol' whitelist persists after reload", st[JUDOL[0]!] === null && st[JUDOL[1]!] === "judol");
 
+  // "Laporkan": copies a ready report and opens aduankonten.id (never auto-submits).
+  {
+    const ctx = browser.defaultBrowserContext();
+    await ctx.overridePermissions("https://www.youtube.com", ["clipboard-read", "clipboard-write", "clipboard-sanitized-write"]);
+    const opened = new Promise<string>((res) => browser!.once("targetcreated", (t) => res(t.url())));
+    await page.click(`ytd-comment-view-model[data-i="1"] button[data-aj-act="report"]`);
+    const url = await Promise.race([opened, sleep(3000).then(() => "")]);
+    check("'Laporkan' opens aduankonten.id", url.startsWith("https://aduankonten.id"), url);
+    for (const p of await browser.pages()) if (p.url().includes("aduankonten")) await p.close();
+    await page.bringToFront();
+    await sleep(200);
+    const clip = await page.evaluate(() => navigator.clipboard.readText()).catch((e) => `ERR ${e}`);
+    check("report text copied with link + original comment", clip.includes("Kategori: Perjudian") && clip.includes("watch?v=e2etest") && clip.includes(JUDOL[1]!), clip.slice(0, 120));
+    for (const p of await browser.pages()) if (p.url().includes("aduankonten")) await p.close();
+  }
+
   // ---------- extension-page security ----------
   const opts = await browser.newPage();
   opts.on("pageerror", (e) => extErrors.push(`options: ${e}`));

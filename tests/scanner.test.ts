@@ -175,3 +175,18 @@ describe("per-page controls", () => {
     expect(resolveActive({ enabled: false }, { sites: {}, pages: {} }, "x", "y")).toEqual({ active: false, reason: "global" });
   });
 });
+
+describe("report button", () => {
+  test("'Laporkan' passes the comment, author and platform", async () => {
+    const reports: Array<{ text: string; author: string; where: string }> = [];
+    const s = new Scanner(document, { classify: async () => [], onAllow: () => {}, onReport: (r) => reports.push(r) });
+    document.body.innerHTML = "";
+    s.start(cfg({ jevAvailable: false }));
+    const el = comment("slot gacor maxwin depo 10rb link bio", "@SLOT88");
+    document.body.append(el);
+    await tick();
+    el.querySelector<HTMLButtonElement>('button[data-aj-act="report"]')!.click();
+    expect(reports).toEqual([{ text: "slot gacor maxwin depo 10rb link bio", author: "@SLOT88", where: "komentar YouTube" }]);
+    s.stop();
+  });
+});

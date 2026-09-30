@@ -1,5 +1,6 @@
 /** Popup: per-page / per-site toggles, temporary reveal, stats. */
 import { sendBg, sendTab, type JevStatus, type PageInfo } from "../shared/messages";
+import { ADUAN_URL, reportText } from "../shared/report";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const chk = (id: string) => $<HTMLInputElement>(id);
@@ -98,6 +99,19 @@ async function main(): Promise<void> {
     await sendBg("rules:page", { pageKey, on: null });
     await renderPage();
   });
+  $("reportPage").addEventListener("click", async () => {
+    const i = await sendTab(tabId, "page:info", {}, 0).catch(() => info!);
+    const where = i.stats.judol ? `halaman dengan ${i.stats.judol} konten judi terdeteksi` : "halaman web";
+    const text = reportText({ url: i.url, where });
+    try {
+      await navigator.clipboard.writeText(text);
+      $("reportHint").textContent = "Laporan disalin. Tempel di formulir aduankonten.id, lalu kirim.";
+    } catch {
+      $("reportHint").textContent = "Salin alamat halaman ini ke formulir aduankonten.id.";
+    }
+    await chrome.tabs.create({ url: ADUAN_URL });
+  });
+
   chk("revealAll").addEventListener("change", () => {
     // Broadcast to all frames (live chat iframe too); not persisted — resets on navigation.
     void chrome.tabs.sendMessage(tabId, { type: "page:reveal", revealed: chk("revealAll").checked }).catch(() => {});

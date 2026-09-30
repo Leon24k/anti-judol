@@ -36,7 +36,8 @@ html:not([data-aj-reveal-all]) [data-aj-action="hide"][data-aj-state="suspicious
 }
 [data-aj-state="suspicious"] > .aj-badge { background: #bf5a00; }
 [data-aj-state="pending"] > .aj-badge { background: #455a64; }
-[data-aj-state="pending"] > .aj-badge button[data-aj-act="allow"] { display: none; }
+[data-aj-state="pending"] > .aj-badge button[data-aj-act="allow"],
+[data-aj-state="pending"] > .aj-badge button[data-aj-act="report"] { display: none; }
 html[data-aj-reveal-all] .aj-badge { opacity: 0.65; }
 
 .aj-badge button {

@@ -45,6 +45,7 @@ function ensureBadge(el: Element): HTMLElement {
     label,
     button(doc, "reveal", "Lihat", "Tampilkan konten yang disembunyikan"),
     button(doc, "allow", "Bukan judol", "Tandai bukan judol dan jangan sembunyikan lagi"),
+    button(doc, "report", "Laporkan", "Laporkan ke aduankonten.id (Komdigi)"),
   );
   el.append(badge);
   return badge;
@@ -82,7 +83,12 @@ export function isOurs(n: Node): boolean {
 }
 
 /** One delegated capture listener: badge buttons + click-to-reveal on blurred items. */
-export function installInteractions(doc: Document, onAllow: (key: string, el: Element) => void): () => void {
+export interface InteractionHandlers {
+  onAllow(key: string, el: Element): void;
+  onReport(el: Element): void;
+}
+
+export function installInteractions(doc: Document, h: InteractionHandlers): () => void {
   const onClick = (e: MouseEvent) => {
     const t = e.target as Element | null;
     if (!t?.closest) return;
@@ -98,7 +104,10 @@ export function installInteractions(doc: Document, onAllow: (key: string, el: El
         btn.textContent = on ? "Sembunyikan" : "Lihat";
       } else if (btn.dataset.ajAct === "allow") {
         const key = host.getAttribute("data-aj-key");
-        if (key) onAllow(key, host);
+        if (key) h.onAllow(key, host);
+      } else if (btn.dataset.ajAct === "report") {
+        h.onReport(host);
+        btn.textContent = "Laporan disalin ✓";
       }
       return;
     }
