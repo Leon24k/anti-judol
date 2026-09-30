@@ -93,7 +93,9 @@ function fill(v: PublicView): void {
   const s = v.settings;
   renderPlatforms(v);
   ($("webScan") as HTMLInputElement).checked = s.webScan && allSites;
-  for (const k of ["enabled", "blurSuspicious", "preblurLocal", "remoteConsent", "blockSites", "blockRemote"] as const) checkbox(k).checked = s[k];
+  for (const k of ["enabled", "blurSuspicious", "preblurLocal", "remoteConsent", "blockSites", "blockRemote", "syncEnabled"] as const) checkbox(k).checked = s[k];
+  (field("customBlock") as unknown as HTMLTextAreaElement).value = s.customBlock.join("\n");
+  (field("customAllow") as unknown as HTMLTextAreaElement).value = s.customAllow.join("\n");
   (field("blockDomains") as unknown as HTMLTextAreaElement).value = s.blockDomains.join("\n");
   (field("allowDomains") as unknown as HTMLTextAreaElement).value = s.allowDomains.join("\n");
   void renderBlockStatus();
@@ -110,6 +112,8 @@ function fill(v: PublicView): void {
   $("usage").textContent = `Hari ini: ${v.usage.today.toLocaleString("id-ID")} komentar dikirim`;
 }
 
+const phrases = (n: string) =>
+  (field(n) as unknown as HTMLTextAreaElement).value.split("\n").map((x) => x.trim()).filter(Boolean);
 const lines = (n: string) =>
   (field(n) as unknown as HTMLTextAreaElement).value.split(/[\s,]+/).map((x) => x.trim()).filter(Boolean);
 
@@ -134,6 +138,9 @@ function read(): Partial<Settings> {
     preblurLocal: checkbox("preblurLocal").checked,
     remoteConsent: checkbox("remoteConsent").checked,
     blockSites: checkbox("blockSites").checked,
+    syncEnabled: checkbox("syncEnabled").checked,
+    customBlock: phrases("customBlock"),
+    customAllow: phrases("customAllow"),
     blockRemote: checkbox("blockRemote").checked,
     blockDomains: lines("blockDomains"),
     allowDomains: lines("allowDomains"),
@@ -186,6 +193,35 @@ $("test").addEventListener("click", async () => {
   $("testResult").textContent = "Menguji…";
   const r = await sendBg("jev:test", {});
   $("testResult").textContent = r.ok ? `✓ ${r.latencyMs}ms · ${r.detail}` : `✗ ${r.detail}`;
+});
+
+$("export").addEventListener("click", async () => {
+  const data = await sendBg("data:export", {});
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `anti-judol-pengaturan-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  flash("dataResult", "Diekspor (tanpa API key)");
+});
+$("importBtn").addEventListener("click", () => $("importFile").click());
+$("importFile").addEventListener("change", async (e) => {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file) return;
+  if (file.size > 1_000_000) return flash("dataResult", "File terlalu besar");
+  let data: unknown;
+  try {
+    data = JSON.parse(await file.text());
+  } catch {
+    return flash("dataResult", "File bukan JSON yang valid");
+  }
+  const r = await sendBg("data:import", { data });
+  if (!r.ok) return flash("dataResult", r.reason);
+  fill(await sendBg("settings:get", {}));
+  flash("dataResult", "Pengaturan diimpor ✓ (API key tetap milik perangkat ini)");
 });
 
 $("clearAllow").addEventListener("click", async () => {

@@ -116,6 +116,24 @@ export function scoreLocal(n: Normalized): LocalScore {
   return { score, signals };
 }
 
+/**
+ * User keyword lists, compiled once. Matching uses the same skeleton as the built-in rules, so
+ * "gacor88" also catches "g4c0r 88" and "𝐆𝐀𝐂𝐎𝐑𝟖𝟖". Allow wins over block.
+ */
+export interface CustomWords {
+  block: string[];
+  allow: string[];
+}
+export function compileCustom(block: readonly string[], allow: readonly string[]): CustomWords {
+  const sk = (w: string) => skeletonOf(w);
+  return { block: block.map(sk).filter((w) => w.length >= 2), allow: allow.map(sk).filter((w) => w.length >= 2) };
+}
+export function customVerdict(n: Normalized, c: CustomWords): "block" | "allow" | null {
+  if (c.allow.some((w) => n.joined.includes(w))) return "allow";
+  if (c.block.some((w) => n.joined.includes(w))) return "block";
+  return null;
+}
+
 /** Convenience for tests / callers that only have raw text. */
 export function scoreText(text: string): LocalScore {
   return scoreLocal(normalize(text));

@@ -52,6 +52,8 @@ const cfg = (over: Partial<ContentConfig> = {}): ContentConfig => ({
   surfaces: { comment: true, live_chat: true, video_title: true },
   platforms: allPlatforms(true),
   webScan: false,
+  customBlock: [],
+  customAllow: [],
   jevAvailable: false,
   allowKeys: [],
   ...over,

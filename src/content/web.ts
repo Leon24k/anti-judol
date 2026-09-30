@@ -5,7 +5,8 @@
  * the service worker (in-extension message, no network).
  */
 import { THRESHOLDS } from "../shared/decide";
-import { scoreText } from "../shared/heuristics";
+import { compileCustom, customVerdict, scoreText, type CustomWords } from "../shared/heuristics";
+import { normalize } from "../shared/normalize";
 import type { ContentConfig, PageStats } from "../shared/messages";
 import { ADUAN_URL, reportText } from "../shared/report";
 import { bannerText, hostLooksJudol, hostOf, textLooksJudol } from "../shared/webscan";
@@ -34,6 +35,7 @@ export class WebScanner {
   private hidden = 0;
   private scanned = 0;
   private pageWarned = false;
+  private custom: CustomWords = { block: [], allow: [] };
   private readonly base: string;
 
   constructor(
@@ -63,6 +65,7 @@ export class WebScanner {
 
   start(cfg: ContentConfig): void {
     this.cfg = cfg;
+    this.custom = compileCustom(cfg.customBlock, cfg.customAllow);
     if (!cfg.active || !cfg.webScan) return this.stop();
     if (!this.mo) {
       this.mo = new MutationObserver((recs) => {
@@ -138,7 +141,8 @@ export class WebScanner {
       if (known === undefined) this.queueHost(host, el, kind);
     }
     const text = kind === "link" ? (el.textContent ?? "") : bannerText(el);
-    if (textLooksJudol(text, threshold)) this.hide(el, kind, host ?? "");
+    const cv = text.trim().length >= 2 ? customVerdict(normalize(text), this.custom) : null;
+    if (cv === "block" || (cv !== "allow" && textLooksJudol(text, threshold))) this.hide(el, kind, host ?? "");
   }
 
   private queueHost(host: string, el: Element, kind: Kind): void {

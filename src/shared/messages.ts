@@ -1,6 +1,7 @@
 /** Typed message contracts between content script, popup/options, and the service worker. */
 import type { ActiveReason } from "./page";
 import type { PlatformId } from "./platforms";
+import type { Portable } from "./portable";
 import type { Action, Sensitivity, Settings, Surface } from "./settings";
 import type { Verdict, VerdictSource } from "./verdict";
 
@@ -40,6 +41,8 @@ export interface ContentConfig {
   surfaces: Record<Surface, boolean>;
   /** Which platforms the user enabled (content script checks its own). */
   platforms: Record<PlatformId, boolean>;
+  customBlock: string[];
+  customAllow: string[];
   /** All-sites ad/link scanner enabled (and <all_urls> granted). */
   webScan: boolean;
   jevAvailable: boolean;
@@ -91,6 +94,8 @@ export interface BgMessages {
   "settings:update": { req: { patch: Partial<Settings> }; res: PublicView };
   "cache:clear": { req: Record<string, never>; res: { ok: true } };
   "block:status": { req: Record<string, never>; res: BlocklistStatus };
+  "data:export": { req: Record<string, never>; res: Portable };
+  "data:import": { req: { data: unknown }; res: { ok: boolean; reason: string } };
   "block:refresh": { req: Record<string, never>; res: BlocklistStatus };
   "block:bypass": { req: { domain: string; tabId: number }; res: { ok: boolean } };
   "block:allowDomain": { req: { domain: string }; res: { ok: true } };
@@ -112,6 +117,8 @@ export const PRIVILEGED: ReadonlySet<BgType> = new Set<BgType>([
   "jev:test",
   "block:status",
   "block:refresh",
+  "data:export",
+  "data:import",
   "block:bypass",
   "block:allowDomain",
 ]);

@@ -11,7 +11,7 @@
  */
 import { localVerdict, THRESHOLDS } from "../shared/decide";
 import { hashKey } from "../shared/hash";
-import { scoreLocal } from "../shared/heuristics";
+import { compileCustom, customVerdict, scoreLocal, type CustomWords } from "../shared/heuristics";
 import type { ClassifyItem, ClassifyResult, ContentConfig, PageStats } from "../shared/messages";
 import { normalize } from "../shared/normalize";
 import { platformById } from "../shared/platforms";
@@ -60,6 +60,7 @@ export class Scanner {
   private waiting = new Map<string, Set<Element>>();
   private outbox = new Map<string, ClassifyItem>();
   private allow = new Set<string>();
+  private custom: CustomWords = { block: [], allow: [] };
   private sliceTimer: ReturnType<typeof setTimeout> | undefined;
   private sendTimer: ReturnType<typeof setTimeout> | undefined;
   private sweepTimer: ReturnType<typeof setInterval> | undefined;
@@ -101,6 +102,7 @@ export class Scanner {
     const prev = this.cfg;
     this.cfg = cfg;
     this.allow = new Set(cfg.allowKeys);
+    this.custom = compileCustom(cfg.customBlock, cfg.customAllow);
     if (!cfg.active || !this.set || !cfg.platforms[this.set.platform]) return this.stop();
     if (prev && prev.sensitivity !== cfg.sensitivity) this.verdicts.clear();
     this.tracked = new WeakMap();
@@ -233,7 +235,9 @@ export class Scanner {
 
     const n = normalize(text);
     const na = author ? normalize(author) : null;
-    const score = Math.max(scoreLocal(n).score, na ? scoreLocal(na).score * 0.9 : 0);
+    const cv = customVerdict(n, this.custom) ?? (na ? customVerdict(na, this.custom) : null);
+    if (cv === "allow") return; // user said these words are never judol
+    const score = cv === "block" ? 1 : Math.max(scoreLocal(n).score, na ? scoreLocal(na).score * 0.9 : 0);
     const key = hashKey(`${n.key}|${na?.key ?? ""}`);
     const tr: Track = { raw, origText: text, origAuthor: author, key, surface: a.surface, score, text: n.display, author: na?.display ?? "" };
     this.tracked.set(el, tr);

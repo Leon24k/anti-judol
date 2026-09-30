@@ -307,6 +307,36 @@ try {
     check("disabling all-sites unregisters its script", !regs3.includes("aj-web"), JSON.stringify(regs3));
   }
 
+  // ---------- custom keywords, sync, export/import ----------
+  {
+    await send({ type: "settings:update", patch: { customBlock: ["cuanmania"], customAllow: ["parkir slot"] } });
+    const cp = await browser!.newPage();
+    await serve(cp);
+    await cp.goto(PAGE, { waitUntil: "domcontentloaded" });
+    await sleep(800);
+    const r = await cp.evaluate(() => (window as unknown as { addComment(t: string): Promise<{ state: string | null }> }).addComment("mampir ke C U A N M A N I A ya"));
+    check("custom block word hides comment (through obfuscation)", r.state === "judol", String(r.state));
+    await cp.close();
+
+    await send({ type: "settings:update", patch: { apiKey: "apikey_e2e_secret_value", syncEnabled: true } });
+    await sleep(5000); // debounced push
+    const synced = await worker!.evaluate(() => chrome.storage.sync.get(null));
+    const syncJson = JSON.stringify(synced);
+    check("sync writes settings + whitelist to chrome.storage.sync", syncJson.includes("cuanmania") && "aj:s:n" in synced, `${Object.keys(synced).length} items`);
+    check("sync never contains the API key", !syncJson.includes("apikey_e2e_secret_value"));
+
+    const exported = await send({ type: "data:export" });
+    check("export has no API key", !JSON.stringify(exported).includes("apikey_e2e_secret_value") && (exported.settings as { customBlock: string[] }).customBlock[0] === "cuanmania");
+    await send({ type: "settings:update", patch: { customBlock: [], sensitivity: "low" } });
+    const imp = await send({ type: "data:import", data: exported });
+    const after = (await send({ type: "settings:get" })) as { settings: { customBlock: string[]; sensitivity: string }; keys: { typesafe: string | null } };
+    check("import restores settings, keeps local key", imp.ok === true && after.settings.customBlock[0] === "cuanmania" && after.settings.sensitivity === "normal" && after.keys.typesafe === "…alue", JSON.stringify({ imp, s: after.settings.sensitivity, k: after.keys }));
+    await send({ type: "settings:update", patch: { syncEnabled: false, apiKey: "", customBlock: [], customAllow: [] } });
+    await sleep(300);
+    const cleared = await worker!.evaluate(() => chrome.storage.sync.get(null));
+    check("turning sync off removes our data from sync", Object.keys(cleared).length === 0, JSON.stringify(Object.keys(cleared)));
+  }
+
   if (TS_KEY) {
     await opts.type("#apiKey", TS_KEY);
     await opts.click('input[name="remoteConsent"]');

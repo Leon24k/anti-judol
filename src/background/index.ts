@@ -23,6 +23,8 @@ import { applyBlocking, blocklistMeta, bypassOnce, checkHosts, ensureAlarm, isBl
 import { grantedPlatforms, hasAllSites, syncPlatformScripts, syncWebScript } from "./platforms";
 import { DailyQuota } from "./quota";
 import { Scheduler } from "./scheduler";
+import { clearSync, onRemoteChange, pull, schedulePush } from "./sync";
+import { fromPortable, mergeAllow, toPortable, type Portable } from "../shared/portable";
 
 const K_SETTINGS = "aj:settings";
 const K_RULES = "aj:rules";
@@ -70,6 +72,8 @@ const ready = (async () => {
   webScanActive = await syncWebScript(settings.webScan).catch(() => false);
   void setupBlocking(false);
 })();
+
+onRemoteChange((p) => void ready.then(() => applyRemote(p)).catch(() => {}));
 
 const blockCfg = () => ({ enabled: settings.blockSites, remote: settings.blockRemote, block: settings.blockDomains, allow: settings.allowDomains });
 
@@ -132,6 +136,58 @@ function publicView() {
   };
 }
 
+/** Single path for every settings change (UI, import, sync from another device). */
+async function commitSettings(next: Settings, fromRemote = false): Promise<void> {
+  const prev = settings;
+  settings = next;
+  await chrome.storage.local.set({ [K_SETTINGS]: settings });
+  await syncPlatformScripts(settings.platforms).catch(() => {});
+  webScanActive = await syncWebScript(settings.webScan).catch(() => false);
+  if (
+    prev.blockSites !== settings.blockSites ||
+    prev.blockRemote !== settings.blockRemote ||
+    prev.blockDomains.join() !== settings.blockDomains.join() ||
+    prev.allowDomains.join() !== settings.allowDomains.join()
+  )
+    await setupBlocking(false);
+  if (
+    prev.apiKey !== settings.apiKey ||
+    prev.openrouterKey !== settings.openrouterKey ||
+    prev.model !== settings.model ||
+    prev.remoteConsent !== settings.remoteConsent
+  ) {
+    scheduler.reset();
+    scheduler.cache.clear();
+    status = { state: "disabled" };
+  }
+  if (prev.syncEnabled && !settings.syncEnabled) await clearSync().catch(() => {});
+  // Never re-push a change that came from sync (would ping-pong between devices).
+  if (settings.syncEnabled && !fromRemote) {
+    if (!prev.syncEnabled) await adoptRemote(); // first enable: pull what other devices already have
+    schedulePush(() => ({ settings, rules }));
+  }
+  // Sensitivity change needs no cache purge: probabilities are cached, thresholds apply at read time.
+  await broadcast();
+}
+
+/** Merge a blob from another device: its settings win, whitelists are unioned, keys stay local. */
+async function applyRemote(p: Portable): Promise<void> {
+  if (!settings.syncEnabled) return; // this device opted out
+  const r = fromPortable(p, settings);
+  if (!r || !r.settings.syncEnabled) return;
+  rules = { ...rules, sites: { ...rules.sites, ...r.rules.sites }, allow: mergeAllow(rules.allow, r.rules.allow) };
+  await chrome.storage.local.set({ [K_RULES]: rules });
+  await commitSettings({ ...r.settings, syncEnabled: true }, true);
+}
+
+async function adoptRemote(): Promise<void> {
+  const p = await pull().catch(() => null);
+  if (!p) return;
+  const r = fromPortable(p, settings);
+  if (r) rules = { ...rules, sites: { ...r.rules.sites, ...rules.sites }, allow: mergeAllow(rules.allow, r.rules.allow) };
+  await chrome.storage.local.set({ [K_RULES]: rules });
+}
+
 async function saveRules(): Promise<void> {
   rules = {
     sites: rules.sites,
@@ -139,6 +195,7 @@ async function saveRules(): Promise<void> {
     allow: pruneNewest(rules.allow, MAX_ALLOW, (v) => v),
   };
   await chrome.storage.local.set({ [K_RULES]: rules });
+  if (settings.syncEnabled) schedulePush(() => ({ settings, rules }));
   await broadcast();
 }
 
@@ -163,6 +220,8 @@ function contentConfig(pageKey: string, siteKey: string): ContentConfig {
     surfaces: settings.surfaces,
     platforms: settings.platforms,
     webScan: webScanActive,
+    customBlock: settings.customBlock,
+    customAllow: settings.customAllow,
     jevAvailable: jevConfigured(settings) && status.state !== "unauthorized",
     allowKeys: Object.keys(rules.allow),
   };
@@ -220,36 +279,26 @@ const handlers: Handlers = {
     return { ...publicView(), status, grantedPlatforms: [...(await grantedPlatforms())], allSites: await hasAllSites() };
   },
   async "settings:update"({ patch }) {
-    const prev = settings;
-    settings = sanitizeSettings({
-      ...settings,
-      ...patch,
-      surfaces: { ...settings.surfaces, ...patch.surfaces },
-      platforms: { ...settings.platforms, ...patch.platforms },
-    });
-    await chrome.storage.local.set({ [K_SETTINGS]: settings });
-    await syncPlatformScripts(settings.platforms).catch(() => {});
-    webScanActive = await syncWebScript(settings.webScan).catch(() => false);
-    if (
-      prev.blockSites !== settings.blockSites ||
-      prev.blockRemote !== settings.blockRemote ||
-      prev.blockDomains.join() !== settings.blockDomains.join() ||
-      prev.allowDomains.join() !== settings.allowDomains.join()
-    )
-      await setupBlocking(false);
-    if (
-      prev.apiKey !== settings.apiKey ||
-      prev.openrouterKey !== settings.openrouterKey ||
-      prev.model !== settings.model ||
-      prev.remoteConsent !== settings.remoteConsent
-    ) {
-      scheduler.reset();
-      scheduler.cache.clear();
-      status = { state: "disabled" };
-    }
-    // Sensitivity change needs no cache purge: probabilities are cached, thresholds apply at read time.
-    await broadcast();
+    await commitSettings(
+      sanitizeSettings({
+        ...settings,
+        ...patch,
+        surfaces: { ...settings.surfaces, ...patch.surfaces },
+        platforms: { ...settings.platforms, ...patch.platforms },
+      }),
+    );
     return publicView();
+  },
+  async "data:export"() {
+    return toPortable(settings, rules);
+  },
+  async "data:import"({ data }) {
+    const r = fromPortable(data, settings);
+    if (!r) return { ok: false as const, reason: "File bukan ekspor Anti-Judol yang valid." };
+    rules = { ...rules, sites: { ...rules.sites, ...r.rules.sites }, allow: mergeAllow(rules.allow, r.rules.allow) };
+    await saveRules();
+    await commitSettings(r.settings);
+    return { ok: true as const, reason: "" };
   },
   async "block:check"({ hosts }) {
     if (!Array.isArray(hosts)) return { blocked: [] };
@@ -267,9 +316,7 @@ const handlers: Handlers = {
     return { ok: await bypassOnce(domain, tabId) };
   },
   async "block:allowDomain"({ domain }) {
-    settings = sanitizeSettings({ ...settings, allowDomains: [...settings.allowDomains, domain] });
-    await chrome.storage.local.set({ [K_SETTINGS]: settings });
-    await setupBlocking(false);
+    await commitSettings(sanitizeSettings({ ...settings, allowDomains: [...settings.allowDomains, domain] }));
     return { ok: true };
   },
   async "cache:clear"() {

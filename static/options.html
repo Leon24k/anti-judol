@@ -56,6 +56,17 @@
     </div>
     <div class="actions"><button type="button" id="blockRefresh">Perbarui daftar sekarang</button></div>
 
+    <h2>Kata kunci sendiri</h2>
+    <p class="muted small">Dicocokkan setelah penyamaran dibongkar, jadi "gacor88" juga menangkap "g4c0r 88" dan "𝐆𝐀𝐂𝐎𝐑𝟖𝟖".</p>
+    <div class="field">
+      <label for="customBlock">Selalu anggap judol (satu per baris)</label>
+      <textarea id="customBlock" name="customBlock" rows="3" spellcheck="false" placeholder="nama situs judi yang sering muncul"></textarea>
+    </div>
+    <div class="field">
+      <label for="customAllow">Jangan pernah tandai (satu per baris)</label>
+      <textarea id="customAllow" name="customAllow" rows="3" spellcheck="false" placeholder="nama channel / istilah game yang kamu suka"></textarea>
+    </div>
+
     <h2>Area yang dipindai</h2>
     <label class="row"><span>Komentar</span><input type="checkbox" name="surfaces.comment" /></label>
     <label class="row"><span>Live chat</span><input type="checkbox" name="surfaces.live_chat" /></label>
@@ -108,6 +119,13 @@
     </div>
 
     <h2>Data</h2>
+    <label class="row"><span>Sinkronkan pengaturan &amp; whitelist lewat akun Chrome</span><input type="checkbox" name="syncEnabled" /></label>
+    <p class="muted small">Memakai Chrome Sync milikmu. API key <b>tidak pernah</b> ikut disinkronkan atau diekspor.</p>
+    <div class="actions">
+      <button type="button" id="export">Ekspor pengaturan</button>
+      <button type="button" id="importBtn">Impor pengaturan</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden />
+    </div>
     <div class="actions">
       <button type="button" id="clearAllow">Hapus whitelist komentar</button>
       <button type="button" id="clearCache">Hapus cache klasifikasi</button>

@@ -29,6 +29,11 @@ export interface Settings {
   remoteConsent: boolean;
   /** Max comments sent to the API per day (cost guard). 0 = unlimited. */
   dailyLimit: number;
+  /** User words/phrases: always treat as judol / never flag. Matched after de-obfuscation. */
+  customBlock: string[];
+  customAllow: string[];
+  /** Opt-in: copy settings + whitelist (never API keys) via Chrome Sync. */
+  syncEnabled: boolean;
   /** Opt-in: hide gambling banners/links on every website (needs <all_urls>). Local only. */
   webScan: boolean;
   /** Block navigation to known gambling domains (declarativeNetRequest). */
@@ -53,6 +58,9 @@ export const DEFAULT_SETTINGS: Settings = {
   openrouterKey: "",
   remoteConsent: false,
   dailyLimit: 20000,
+  customBlock: [],
+  customAllow: [],
+  syncEnabled: false,
   webScan: false,
   blockSites: true,
   blockRemote: true,
@@ -107,6 +115,9 @@ export function sanitizeSettings(raw: unknown): Settings {
       typeof r.dailyLimit === "number" && Number.isFinite(r.dailyLimit)
         ? Math.min(1_000_000, Math.max(0, Math.round(r.dailyLimit)))
         : d.dailyLimit,
+    customBlock: wordList(r.customBlock),
+    customAllow: wordList(r.customAllow),
+    syncEnabled: bool(r.syncEnabled, d.syncEnabled),
     webScan: bool(r.webScan, d.webScan),
     blockSites: bool(r.blockSites, d.blockSites),
     blockRemote: bool(r.blockRemote, d.blockRemote),
@@ -127,6 +138,18 @@ export function sanitizeRules(raw: unknown): Rules {
   const allow: Rules["allow"] = {};
   for (const [k, v] of Object.entries(obj(r.allow))) if (typeof v === "number") allow[k] = v;
   return { sites, pages, allow };
+}
+
+function wordList(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  const out = new Set<string>();
+  for (const x of v) {
+    if (typeof x !== "string") continue;
+    const w = x.replace(/\s+/g, " ").trim().slice(0, 60);
+    if (w.length >= 2) out.add(w);
+    if (out.size >= 200) break;
+  }
+  return [...out];
 }
 
 function domainList(v: unknown): string[] {
