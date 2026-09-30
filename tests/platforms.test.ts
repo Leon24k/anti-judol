@@ -158,3 +158,17 @@ describe("scanner on other platforms", () => {
     expect(sent).toContainEqual(expect.objectContaining({ platform: "reddit" }));
   });
 });
+
+test("x: newer logged-out markup (no data-testid) is recognized", () => {
+  document.body.innerHTML = `<article class="flex flex-col gap-1"><div class="flex gap-2"><a href="/slot88"><img></a>
+    <div class="flex min-w-0 flex-1"><div class="flex items-start justify-between"><a href="/slot88"><span>SLOT88</span></a></div>
+    <div class="font-chirp max-w-full whitespace-pre-wrap" dir="auto">s l o t g4c0r maxwin cek bio</div>
+    <div data-engagement-action="reply"></div></div></div></article>`;
+  const set = adaptersForHost("x.com")!;
+  const els = [...document.querySelectorAll(set.containers)].filter((e) => adapterFor(e, set));
+  expect(els.length).toBe(1);
+  const r = extract(els[0]!, adapterFor(els[0]!, set)!);
+  expect(r.text).toBe("s l o t g4c0r maxwin cek bio");
+  expect(r.author).toBe("SLOT88");
+  document.body.innerHTML = "";
+});

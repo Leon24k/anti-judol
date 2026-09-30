@@ -174,6 +174,7 @@ Reports sent to aduankonten.id stay in Indonesian on purpose, because they go to
   - the all-sites scanner
   - export/import and sync
   - the safety defaults
+- `bun run live`: opens **real** public pages (YouTube, Reddit, X, Twitch) with the extension loaded and reports whether each platform's selectors still find content. It's read-only, with no login. It isn't part of CI, because real sites are slow and can put up consent or login walls. Run it when a platform seems to stop working, or before a release.
 - `bun run demo`: re-records `docs/demo.gif` and `docs/screenshot.png` (English) plus the `.id` versions (Indonesian) in a real Chrome (local mode, no API key).
 - `bun run e2e`: loads the build into a real Chrome via puppeteer-core.
   - Fixture pages are served at real site URLs through request interception.

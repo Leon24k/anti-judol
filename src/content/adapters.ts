@@ -49,6 +49,14 @@ export const ADAPTERS: Record<PlatformId, readonly Adapter[]> = {
       author: '[data-testid="User-Name"]',
       outermost: true,
     },
+    // Newer markup (seen 2026-09 on logged-out pages): no data-testid, engagement bar marks a post.
+    {
+      surface: "comment",
+      container: "article:not([data-testid]):has([data-engagement-action])",
+      text: 'div.whitespace-pre-wrap[dir="auto"]',
+      author: 'a[href^="/"]:not([href*="/status/"]) span, a[href^="/"]:not([href*="/status/"])',
+      outermost: true,
+    },
   ],
   reddit: [
     { surface: "comment", container: "shreddit-comment", text: '[slot="comment"]', author: "@author" },
@@ -134,6 +142,15 @@ export function extract(el: Element, a: Adapter): { text: string; author: string
   }
   let author = "";
   if (a.author?.startsWith("@")) author = el.getAttribute(a.author.slice(1)) ?? "";
-  else if (a.author) author = el.querySelector(a.author)?.textContent ?? "";
+  else if (a.author) {
+    // First match with visible text (the first link is often an avatar image).
+    for (const n of el.querySelectorAll(a.author)) {
+      const t = n.textContent?.trim();
+      if (t) {
+        author = t;
+        break;
+      }
+    }
+  }
   return { text: text.trim(), author: author.trim() };
 }
