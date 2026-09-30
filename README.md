@@ -10,8 +10,15 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="Gambling spam comments blurred with a red 'Promosi judol' badge, while normal comments stay visible" width="640" />
+  <img src="docs/demo.gif" alt="Demo: as comments load on a YouTube video, gambling spam is blurred instantly with a red badge. One is revealed with the 'Lihat' button and hidden again, then the toolbar popup shows 12 comments scanned, 3 gambling, 1 suspicious" width="800" />
 </p>
+
+<details>
+<summary><b>Screenshot</b></summary>
+<p align="center">
+  <img src="docs/screenshot.png" alt="YouTube comments with gambling spam blurred and labelled 'Promosi judol' or 'Spam mencurigakan', next to the extension popup showing page statistics and on/off switches" width="800" />
+</p>
+</details>
 
 ## Why
 

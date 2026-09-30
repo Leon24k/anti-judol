@@ -10,8 +10,15 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="Komentar spam judi di-blur dengan badge merah 'Promosi judol', komentar biasa tetap terlihat" width="640" />
+  <img src="docs/demo.gif" alt="Demo: saat komentar video YouTube dimuat, spam judi langsung di-blur dengan badge merah. Satu komentar dibuka dengan tombol 'Lihat' lalu ditutup lagi, kemudian popup menampilkan 12 komentar dipindai, 3 judol, 1 spam" width="800" />
 </p>
+
+<details>
+<summary><b>Screenshot</b></summary>
+<p align="center">
+  <img src="docs/screenshot.png" alt="Komentar YouTube dengan spam judi di-blur dan diberi label 'Promosi judol' atau 'Spam mencurigakan', di samping popup ekstensi yang menampilkan statistik halaman dan tombol on/off" width="800" />
+</p>
+</details>
 
 ## Kenapa
 

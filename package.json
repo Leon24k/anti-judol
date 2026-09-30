@@ -12,12 +12,16 @@
     "check": "bun run typecheck && bun test && bun run build",
     "icons": "bun run scripts/icons.ts",
     "package": "bun run check && bun run scripts/package.ts",
-    "e2e": "bun run build && bun run scripts/e2e.ts"
+    "e2e": "bun run build && bun run scripts/e2e.ts",
+    "demo": "bun run build && bun run scripts/demo.ts"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "20.14.5",
     "@types/bun": "1.4.2",
     "@types/chrome": "0.3.4",
+    "@types/pngjs": "6.0.5",
+    "gifenc": "1.0.3",
+    "pngjs": "7.0.0",
     "puppeteer-core": "25.12.0",
     "typescript": "7.0.2"
   }

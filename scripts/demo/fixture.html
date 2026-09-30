@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<title>Review HP Rp2 Jutaan Terbaik 2026</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #0f0f0f; color: #f1f1f1; font: 14px/1.45 Roboto, "Segoe UI", Arial, sans-serif; }
+  /* Fake browser toolbar (demo only) */
+  #chrome { position: sticky; top: 0; z-index: 50; height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 14px; background: #202124; border-bottom: 1px solid #333; }
+  #chrome .dots span { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; }
+  #chrome .url { flex: 1; height: 28px; border-radius: 14px; background: #35363a; color: #bdc1c6; display: flex; align-items: center; padding: 0 14px; font-size: 13px; }
+  #chrome .ext { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; }
+  #chrome .ext.active { background: #3c4043; }
+  #chrome .ext img { width: 18px; height: 18px; }
+  #chrome .me { width: 26px; height: 26px; border-radius: 50%; background: #8ab4f8; }
+  /* Page */
+  #page { display: grid; grid-template-columns: 1fr 340px; gap: 24px; padding: 20px 28px; max-width: 1280px; margin: 0 auto; }
+  #player { aspect-ratio: 16 / 9; max-height: 300px; width: 100%; border-radius: 12px; background: radial-gradient(circle at 30% 40%, #3a4b7a, #151a2e 70%); position: relative; overflow: hidden; }
+  #player .phone { position: absolute; left: 50%; top: 50%; width: 90px; height: 170px; margin: -85px 0 0 -45px; border-radius: 16px; background: linear-gradient(160deg, #cfd8e3, #7d8ea3); box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+  #player .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: #444; }
+  #player .bar i { display: block; width: 38%; height: 100%; background: #f00; }
+  ytd-watch-metadata { display: block; margin: 12px 0 4px; }
+  ytd-watch-metadata h1 { font-size: 20px; margin: 0 0 8px; font-weight: 600; }
+  .channel { display: flex; align-items: center; gap: 10px; color: #aaa; }
+  .channel b { color: #f1f1f1; }
+  .channel .av { width: 36px; height: 36px; border-radius: 50%; background: #e67e22; }
+  .sub { margin-left: 12px; background: #f1f1f1; color: #0f0f0f; border-radius: 18px; padding: 6px 14px; font-weight: 600; }
+  h2 { font-size: 16px; margin: 22px 0 10px; }
+  #comments { min-height: 720px; }
+  ytd-comment-view-model { display: flex; gap: 12px; padding: 10px 8px; border-radius: 10px; animation: in .35s ease-out; }
+  @keyframes in { from { opacity: 0; transform: translateY(6px); } }
+  .cav { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; }
+  .cbody { min-width: 0; }
+  #author-text { display: block; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  #author-text small { color: #aaa; font-weight: 400; margin-left: 6px; }
+  #content-text { display: block; }
+  .actions { color: #aaa; font-size: 12px; margin-top: 4px; }
+  /* Sidebar */
+  ytd-compact-video-renderer { display: flex; gap: 10px; margin-bottom: 12px; }
+  .thumb { flex: none; width: 150px; height: 84px; border-radius: 8px; }
+  #video-title { display: block; font-weight: 600; font-size: 13.5px; line-height: 1.35; }
+  .meta { color: #aaa; font-size: 12px; margin-top: 4px; }
+  /* Demo cursor + popup overlay */
+  #cursor { position: fixed; z-index: 100; width: 22px; height: 22px; pointer-events: none; left: -50px; top: -50px; transition: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+  #popup { position: fixed; z-index: 90; top: 48px; right: 44px; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.6); display: none; }
+</style>
+</head>
+<body>
+  <div id="chrome">
+    <div class="dots"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div>
+    <div class="url">🔒 youtube.com/watch?v=demo</div>
+    <div class="ext" id="extIcon"><img src="__ICON__" alt="" /></div>
+    <div class="me"></div>
+  </div>
+
+  <div id="page">
+    <main>
+      <div id="player"><div class="phone"></div><div class="bar"><i></i></div></div>
+      <ytd-watch-metadata>
+        <h1>Review HP Rp2 Jutaan Terbaik 2026 — Beneran Worth It?</h1>
+        <div class="channel"><div class="av"></div><div><b id="text">Gadget Nusantara</b><br /><small>1,2 jt subscriber</small></div><span class="sub">Subscribe</span></div>
+      </ytd-watch-metadata>
+      <h2 id="count">Komentar</h2>
+      <div id="comments"></div>
+    </main>
+    <aside id="side"></aside>
+  </div>
+
+  <svg id="cursor" viewBox="0 0 24 24"><path d="M3 2l7 19 2.5-7.5L20 11z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  <img id="popup" alt="" />
+
+<script>
+  const COLORS = ["#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#16a085", "#2c3e50", "#d35400"];
+  function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+  window.addComment = (author, text, when, i) => {
+    const el = document.createElement("ytd-comment-view-model");
+    el.innerHTML =
+      `<div class="cav" style="background:${COLORS[i % COLORS.length]}">${esc(Array.from(author.replace(/^@/, "").normalize("NFKC"))[0].toUpperCase())}</div>` +
+      `<div class="cbody"><span id="author-text">${esc(author)}<small>${esc(when)}</small></span>` +
+      `<span id="content-text">${esc(text)}</span><div class="actions">👍 ${(i * 7) % 40 + 1}   👎   Balas</div></div>`;
+    document.getElementById("comments").append(el);
+    return el.getAttribute("data-aj-state");
+  };
+  window.addVideo = (title, channel, grad) => {
+    const el = document.createElement("ytd-compact-video-renderer");
+    el.innerHTML = `<div class="thumb" style="background:${grad}"></div><div><span id="video-title">${esc(title)}</span><div class="meta">${esc(channel)}<br />dilihat ${Math.floor(Math.random() * 900 + 100)} rb kali</div></div>`;
+    document.getElementById("side").append(el);
+  };
+  window.moveCursor = (x, y) => { const c = document.getElementById("cursor"); c.style.left = x + "px"; c.style.top = y + "px"; };
+  window.showPopup = (src) => {
+    const p = document.getElementById("popup"); p.src = src; p.style.display = "block";
+    document.getElementById("extIcon").classList.add("active");
+    return new Promise((r) => (p.complete ? r() : (p.onload = r)));
+  };
+</script>
+</body>
+</html>

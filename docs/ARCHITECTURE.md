@@ -91,4 +91,5 @@ State lives in `chrome.storage.local`, and only the service worker writes it, so
 ## Tests
 
 - `bun test`: unit and DOM tests (happy-dom) covering normalization, heuristics, scheduler, scanner, and the safety defaults.
+- `bun run demo`: re-records `docs/demo.gif` and `docs/screenshot.png` in a real Chrome (local mode, no API key).
 - `bun run e2e`: loads `dist/` into a real Chrome via puppeteer-core. YouTube-shaped fixtures are served at real `youtube.com` URLs. Set `TS_KEY=…` to include live Jev checks. The key is passed via env only.
