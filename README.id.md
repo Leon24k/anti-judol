@@ -51,17 +51,28 @@ Anti-Judol Shield membongkar penyamaran itu dan mem-blur spamnya sebelum sempat 
 
 Sementara itu, pasang manual di Chrome, Edge, Brave, atau browser Chromium lain:
 
-1. Pasang [Bun](https://bun.sh), lalu jalankan:
-   ```sh
-   git clone https://github.com/Leon24k/anti-judol.git
-   cd anti-judol
-   bun install
-   bun run build
-   ```
+1. Unduh `anti-judol-<versi>.zip` dari [rilis terbaru](https://github.com/Leon24k/anti-judol/releases/latest), lalu ekstrak.
 2. Buka `chrome://extensions` (atau `edge://extensions`).
 3. Nyalakan **Developer mode** di pojok kanan atas.
-4. Klik **Load unpacked**, lalu pilih folder `dist`.
+4. Klik **Load unpacked**, lalu pilih folder hasil ekstrak tadi.
 5. Buka video YouTube mana saja. Spam judi akan langsung di-blur, dan situs judi yang dikenal otomatis diblokir.
+
+Jangan hapus foldernya, karena browser memuat ekstensi dari situ. Untuk update, unduh rilis baru, ganti isi foldernya, lalu klik ikon reload di kartu ekstensi di `chrome://extensions`.
+
+<details>
+<summary>Atau build sendiri dari source</summary>
+
+Pasang [Bun](https://bun.sh), lalu jalankan:
+
+```sh
+git clone https://github.com/Leon24k/anti-judol.git
+cd anti-judol
+bun install
+bun run build
+```
+
+Muat folder `dist` lewat **Load unpacked** seperti di atas.
+</details>
 
 ## Cara pakai
 

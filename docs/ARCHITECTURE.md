@@ -181,3 +181,17 @@ Reports sent to aduankonten.id stay in Indonesian on purpose, because they go to
   - Optional hosts are pre-granted, because Chrome's permission prompt can't be automated.
   - It covers YouTube, opt-in X, DNR blocking with the real downloaded list, the warning page, all-sites mode, Report, sync, export/import, and both UI languages.
   - Set `TS_KEY=…` to include live Jev checks. The key is passed via env only.
+
+## Releasing
+
+1. Bump `version` in `package.json` and `static/manifest.json`.
+2. Add a `## <version>` section to `CHANGELOG.md`.
+3. Commit, then `git tag v<version> && git push origin v<version>`.
+
+The Release workflow then:
+
+- fails if the tag, manifest, and package versions differ, or if the CHANGELOG section is missing
+- runs the full check and the E2E suite
+- publishes a GitHub release with the store-ready zip and `SHA256SUMS.txt`
+
+The same zip is what gets uploaded to the Chrome Web Store.

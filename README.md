@@ -49,19 +49,30 @@ Anti-Judol Shield undoes those tricks and blurs the spam before you even see it.
 
 > Chrome Web Store listing: coming soon.
 
-Until then you can install it manually in Chrome, Edge, Brave, or another Chromium browser:
+Until then, install it manually in Chrome, Edge, Brave, or another Chromium browser:
 
-1. Install [Bun](https://bun.sh), then run:
-   ```sh
-   git clone https://github.com/Leon24k/anti-judol.git
-   cd anti-judol
-   bun install
-   bun run build
-   ```
+1. Download `anti-judol-<version>.zip` from the [latest release](https://github.com/Leon24k/anti-judol/releases/latest) and unzip it.
 2. Open `chrome://extensions` (or `edge://extensions`).
 3. Turn on **Developer mode** (top-right corner).
-4. Click **Load unpacked** and select the `dist` folder.
+4. Click **Load unpacked** and select the unzipped folder.
 5. Open any YouTube video. Gambling spam is blurred automatically, and known gambling sites are blocked.
+
+Keep the folder: the browser loads the extension from it. To update, download the new release, replace the folder, and click the reload icon on the extension's card in `chrome://extensions`.
+
+<details>
+<summary>Build from source instead</summary>
+
+Install [Bun](https://bun.sh), then:
+
+```sh
+git clone https://github.com/Leon24k/anti-judol.git
+cd anti-judol
+bun install
+bun run build
+```
+
+Load the `dist` folder with **Load unpacked** as above.
+</details>
 
 ## Using it
 

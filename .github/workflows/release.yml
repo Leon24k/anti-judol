@@ -1,0 +1,61 @@
+name: Release
+
+# Push a tag like v1.2.0 (matching package.json + manifest version) to publish a release.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+
+      - name: Tag must match extension version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          MANIFEST=$(jq -r .version static/manifest.json)
+          PKG=$(jq -r .version package.json)
+          echo "tag=$TAG manifest=$MANIFEST package=$PKG"
+          [ "$TAG" = "$MANIFEST" ] && [ "$TAG" = "$PKG" ] || { echo "::error::Tag v$TAG does not match manifest ($MANIFEST) / package.json ($PKG)"; exit 1; }
+
+      - name: Typecheck + tests + build + package validation
+        run: bun run package
+
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+        with:
+          chrome-version: stable
+      - name: E2E (real Chrome)
+        env:
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+        run: bun run scripts/e2e.ts
+
+      - name: Release notes from CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v v="## $VERSION" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "::error::No '## $VERSION' section in CHANGELOG.md"; exit 1; }
+          cat >> notes.md <<'EOF'
+
+          ---
+          **Install (until the Chrome Web Store listing is live):** download `anti-judol-*.zip` below, unzip it, open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**, and select the unzipped folder.
+          EOF
+          sha256sum anti-judol-*.zip | tee SHA256SUMS.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Anti-Judol Shield ${{ github.ref_name }}
+          body_path: notes.md
+          files: |
+            anti-judol-*.zip
+            SHA256SUMS.txt
+          fail_on_unmatched_files: true
